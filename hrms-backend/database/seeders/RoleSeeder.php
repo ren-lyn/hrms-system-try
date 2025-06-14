@@ -13,7 +13,7 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         \App\Models\Role::insert([
-            ['name' => 'Admin'],
+            ['name' => 'HR Assistant'],
             ['name' => 'HR Staff'],
             ['name' => 'Manager'],
             ['name' => 'Employee'],

@@ -10,11 +10,14 @@ class CreateApplicantsTable extends Migration
     {
         Schema::create('applicants', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->unsignedBigInteger('user_id')->unique(); // One-to-one with users table
+            $table->string('full_name');
             $table->string('email')->unique();
-            $table->string('phone')->nullable();
-            $table->text('resume')->nullable(); // maybe a URL or text
+            $table->string('contact_number')->nullable();
+            $table->text('resume_path')->nullable();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

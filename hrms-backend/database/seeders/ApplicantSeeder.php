@@ -2,16 +2,31 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\User;
+use App\Models\Applicant;
+use Illuminate\Support\Facades\Hash;
+
 use Illuminate\Database\Seeder;
 
 class ApplicantSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        \App\Models\Applicant::factory(10)->create();
+        for ($i = 0; $i < 10; $i++) {
+            $user = User::create([
+                'name' => fake()->name(),
+                'email' => fake()->unique()->safeEmail(),
+                'password' => Hash::make('password'),
+                'role_id' => 5,
+            ]);
+
+            Applicant::create([
+                'user_id' => $user->id,
+                'full_name' => $user->name,
+                'email' => $user->email,
+                'contact_number' => fake()->phoneNumber(),
+                'resume_path' => fake()->text(200),
+            ]);
+        }
     }
 }
