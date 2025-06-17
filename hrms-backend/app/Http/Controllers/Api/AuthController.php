@@ -12,7 +12,19 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        $user = User::where('email', $request->email)->first();
+        $request->validate([
+            'login' => 'required', // this can be user_id or email
+            'password' => 'required'
+        ]);
+
+        // Try to find the user based on whether login is numeric (user_id) or email
+        if (is_numeric($request->login)) {
+            // Login using user_id
+            $user = User::where('id', $request->login)->where('role_id', '<', 5)->first();
+        } else {
+            // Login using email (applicant only)
+            $user = User::where('email', $request->login)->where('role_id', 5)->first();
+        }
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
@@ -24,7 +36,6 @@ class AuthController extends Controller
             "access_token" => $token,
             "user" => [
                 "id" => $user->id,
-                "name" => $user->name,
                 "email" => $user->email,
                 "role" => [
                     "id" => $user->role_id ?? null,
@@ -33,6 +44,7 @@ class AuthController extends Controller
             ]
         ]);
     }
+
 
     public function logout(Request $request)
     {

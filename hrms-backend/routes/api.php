@@ -14,19 +14,23 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/job-postings/{id}', [JobPostingController::class, 'destroy']);
 });
 
+// Route::middleware(['auth:sanctum', 'role:HR Assistant'])->group(function () {
+//     Route::put('/employees/{id}', [EmployeeController::class, 'update']);
+//     Route::delete('/employees/{id}', [EmployeeController::class, 'destroy']);
+// });
 
-Route::middleware(['auth:sanctum', 'role:HR Assistant'])->group(function () {
-    Route::get('/employees', [EmployeeController::class, 'index']);
-    Route::post('/employees', [EmployeeController::class, 'store']);
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/employees/{id}', [EmployeeController::class, 'update']);
     Route::delete('/employees/{id}', [EmployeeController::class, 'destroy']);
 });
 
 
+Route::get('/employees', [EmployeeController::class, 'index']);
+Route::post('/employees', [EmployeeController::class, 'store']);
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 Route::post('/register', [ApplicantController::class, 'register']);
-
 
 Route::get('/test', function () {
     return response()->json(['message' => 'Laravel API is working']);

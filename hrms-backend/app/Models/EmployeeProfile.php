@@ -9,8 +9,13 @@ class EmployeeProfile extends Model
     use HasFactory;
     
     protected $fillable = [
-        'user_id', 'first_name', 'last_name', 'position', 'department', 'salary', 'contact_number', 'address'
+        'user_id', 'first_name', 'last_name', 'email', 'position', 'department', 'salary', 'contact_number', 'address'
     ];
+
+    public function scopeEmployees($query)
+    {
+        return $query->where('role_id', '!=', 5);
+    }
 
     public function user()
     {

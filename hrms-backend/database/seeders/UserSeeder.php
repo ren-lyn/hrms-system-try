@@ -4,26 +4,32 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\User;
-use App\Models\Role;
+use App\Models\EmployeeProfile;
+use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // Create a role if it doesn't exist
-        $hrStaffRole = Role::firstOrCreate(['name' => 'HR Staff']);
-
-        // Create one HR Staff user
-        User::factory()->create([
-            'name' => 'HR Staff User',
-            'email' => 'hrstaff@example.com',
-            'role_id' => $hrStaffRole->id,
+        // Create the user (HR Assistant, for example)
+        $user = User::create([
+            'first_name' => 'Juan',
+            'last_name' => 'Dela Cruz',
+            'email' => 'hr@company.com',
+            'password' => Hash::make('password123'),
+            'role_id' => 1, // Change this to the correct role ID (e.g., HR Assistant)
         ]);
 
-        // Create 9 more random users
-        User::factory(9)->create();
+        // Create their employee profile
+        $user->employeeProfile()->create([
+            'first_name' => 'Juan',
+            'last_name' => 'Dela Cruz',
+            'email' => 'hr@company.com',
+            'position' => 'HR Assistant',
+            'department' => 'HR',
+            'salary' => 30000,
+            'contact_number' => '09991234567',
+            'address' => 'Cabuyao, Laguna',
+        ]);
     }
 }

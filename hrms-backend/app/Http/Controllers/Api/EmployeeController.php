@@ -16,45 +16,50 @@ class EmployeeController extends Controller
     public function index()
     {
         $employees = User::with('employeeProfile', 'role')
-            ->whereHas('role', fn ($q) => $q->where('name', 'Employee'))
+            ->where('role_id', '!=', 5) // Exclude Applicants
+            ->whereHas('employeeProfile') // Must have an employee profile
             ->get();
 
         return response()->json($employees);
     }
 
+
+
     // POST /employees
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|email|unique:users',
             'password' => 'required|string',
-
             'first_name' => 'required|string',
             'last_name' => 'required|string',
+            'email' => 'required|email|unique:employee_profiles,email',
             'position' => 'required|string',
+            'role_id' => 'required|integer|exists:roles,id',
             'department' => 'nullable|string',
-            'date_hired' => 'nullable|date',
             'salary' => 'nullable|numeric',
             'contact_number' => 'nullable|string',
-            'address' => 'nullable|string',
+            'address' => 'nullable|string'
         ]);
 
-        $employeeRole = Role::where('name', 'Employee')->firstOrFail();
+
+        $roleId = $validated['role_id'];
+
 
         $user = User::create([
-            'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role_id' => $employeeRole->id,
+            'role_id' => $roleId,
+            'first_name' => $validated['first_name'],
+            'last_name' => $validated['last_name'],
         ]);
+
 
         $user->employeeProfile()->create([
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'],
+            'email' => $validated['email'],
             'position' => $validated['position'],
             'department' => $validated['department'] ?? null,
-            'date_hired' => $validated['date_hired'] ?? null,
             'salary' => $validated['salary'] ?? null,
             'contact_number' => $validated['contact_number'] ?? null,
             'address' => $validated['address'] ?? null,
@@ -63,45 +68,55 @@ class EmployeeController extends Controller
         return response()->json(['message' => 'Employee created successfully'], 201);
     }
 
-    // PUT /employees/{id}
-    public function update(Request $request, $id)
-    {
-        $user = User::findOrFail($id);
+// PUT /employees/{id}
+public function update(Request $request, $id)
+{
+    $user = User::findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => 'sometimes|string',
-            'email' => 'sometimes|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|string',
+    $validated = $request->validate([
+        'password' => 'nullable|string',
+        'first_name' => 'sometimes|string',
+        'last_name' => 'sometimes|string',
+        'email' => 'sometimes|email|unique:employee_profiles,email,' . $user->employeeProfile->id,
+        'position' => 'sometimes|string',
+        'role_id' => 'sometimes|integer|exists:roles,id',
+        'department' => 'nullable|string',
+        'salary' => 'nullable|numeric',
+        'contact_number' => 'nullable|string',
+        'address' => 'nullable|string',
+    ]);
 
-            'first_name' => 'sometimes|string',
-            'last_name' => 'sometimes|string',
-            'position' => 'sometimes|string',
-            'department' => 'nullable|string',
-            'date_hired' => 'nullable|date',
-            'salary' => 'nullable|numeric',
-            'contact_number' => 'nullable|string',
-            'address' => 'nullable|string',
-        ]);
-
-        $user->update([
-            'name' => $validated['name'] ?? $user->name,
-            'email' => $validated['email'] ?? $user->email,
-            'password' => isset($validated['password']) ? Hash::make($validated['password']) : $user->password,
-        ]);
-
-        $user->employeeProfile()->update([
-            'first_name' => $validated['first_name'] ?? $user->employeeProfile->first_name,
-            'last_name' => $validated['last_name'] ?? $user->employeeProfile->last_name,
-            'position' => $validated['position'] ?? $user->employeeProfile->position,
-            'department' => $validated['department'] ?? $user->employeeProfile->department,
-            'date_hired' => $validated['date_hired'] ?? $user->employeeProfile->date_hired,
-            'salary' => $validated['salary'] ?? $user->employeeProfile->salary,
-            'contact_number' => $validated['contact_number'] ?? $user->employeeProfile->contact_number,
-            'address' => $validated['address'] ?? $user->employeeProfile->address,
-        ]);
-
-        return response()->json(['message' => 'Employee updated successfully']);
+    if (isset($validated['password'])) {
+        $user->update(['password' => Hash::make($validated['password'])]);
     }
+
+    if (isset($validated['role_id'])) {
+        $user->update(['role_id' => $validated['role_id']]);
+    }
+
+    // Update other fields on the user
+    $user->update([
+        'first_name' => $validated['first_name'] ?? $user->first_name,
+        'last_name' => $validated['last_name'] ?? $user->last_name,
+        'email' => $validated['email'] ?? $user->email,
+    ]);
+
+    // Update employee profile
+    $user->employeeProfile->update([
+        'first_name' => $validated['first_name'] ?? $user->employeeProfile->first_name,
+        'last_name' => $validated['last_name'] ?? $user->employeeProfile->last_name,
+        'email' => $validated['email'] ?? $user->employeeProfile->email,
+        'position' => $validated['position'] ?? $user->employeeProfile->position,
+        'department' => $validated['department'] ?? $user->employeeProfile->department,
+        'salary' => $validated['salary'] ?? $user->employeeProfile->salary,
+        'contact_number' => $validated['contact_number'] ?? $user->employeeProfile->contact_number,
+        'address' => $validated['address'] ?? $user->employeeProfile->address,
+    ]);
+
+    return response()->json(['message' => 'Employee updated successfully']);
+}
+
+
 
     // DELETE /employees/{id}
     public function destroy($id)

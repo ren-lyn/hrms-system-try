@@ -16,17 +16,17 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             UserSeeder::class,
-            EmployeeProfileSeeder::class,
-            JobPostingSeeder::class,
-            ApplicantSeeder::class,
-            ApplicationSeeder::class,
-            AttendanceSeeder::class,
-            PayrollSeeder::class,
-            LeaveRequestSeeder::class,
-            EvaluationSeeder::class,
-            DisciplinaryActionSeeder::class,
-            OnboardingTaskSeeder::class,
-            ResignationFlagSeeder::class,
+            // EmployeeProfileSeeder::class,
+            // JobPostingSeeder::class,
+            // ApplicantSeeder::class,
+            // ApplicationSeeder::class,
+            // AttendanceSeeder::class,
+            // PayrollSeeder::class,
+            // LeaveRequestSeeder::class,
+            // EvaluationSeeder::class,
+            // DisciplinaryActionSeeder::class,
+            // OnboardingTaskSeeder::class,
+            // ResignationFlagSeeder::class,
         ]);
     }
 }
