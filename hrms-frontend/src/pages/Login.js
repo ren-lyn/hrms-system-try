@@ -9,44 +9,51 @@ const Login = () => {
   const [role, setRole] = useState('Admin');
   const [error, setError] = useState('');
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError('');
+ const handleLogin = async (e) => {
+  e.preventDefault();
+  setError('');
 
-    try {
-      const response = await axios.post('http://localhost:8000/api/login', {
-        email,
-        password,
-      });
+  try {
+    const response = await axios.post('http://localhost:8000/api/login', {
+      login: email,
+      password,
+    });
 
-      const { access_token, user } = response.data;
-      localStorage.setItem('token', access_token);
-      localStorage.setItem('user', JSON.stringify(user));
+    const { access_token, user } = response.data;
 
-      switch (user.role.name) {
-        case 'HR Assistant':
-          navigate('/dashboard/hr-assistant');
-          break;
-        case 'HR Staff':
-          navigate('/dashboard/hr-staff');
-          break;
-        case 'Manager':
-          navigate('/dashboard/manager');
-          break;
-        case 'Applicant':
-          navigate('/dashboard/applicant');
-          break;
-        case 'Employee':
-          navigate('/dashboard/employee');
-          break;
-        default:
-          navigate('/unauthorized');
-          break;
-      }
-    } catch (err) {
-      setError('Login failed. Check your credentials.');
+    // Store in localStorage
+    localStorage.setItem('token', access_token);
+    localStorage.setItem('user', JSON.stringify(user));
+
+    // ✅ Set axios Authorization header for future requests
+    axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+
+    // Redirect based on role
+    switch (user.role.name) {
+      case 'HR Assistant':
+        navigate('/dashboard/hr-assistant');
+        break;
+      case 'HR Staff':
+        navigate('/dashboard/hr-staff');
+        break;
+      case 'Manager':
+        navigate('/dashboard/manager');
+        break;
+      case 'Applicant':
+        navigate('/dashboard/applicant');
+        break;
+      case 'Employee':
+        navigate('/dashboard/employee');
+        break;
+      default:
+        navigate('/unauthorized');
+        break;
     }
-  };
+  } catch (err) {
+    setError('Login failed. Check your credentials.');
+  }
+};
+
 
   return (
     <div className="container vh-100 d-flex align-items-center justify-content-center">
@@ -85,9 +92,9 @@ const Login = () => {
                 <i className="bi bi-person-fill"></i>
               </span>
               <input
-                type="email"
+                type="text"
                 className="form-control"
-                placeholder="Employee ID"
+                placeholder="User ID (1-4) or Email (Applicant)"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

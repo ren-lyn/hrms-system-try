@@ -1,3 +1,5 @@
+import axios from 'axios';
+import { useEffect } from 'react';
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
@@ -5,14 +7,23 @@ import RegisterApplicant from './pages/RegisterApplicant';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
-import HrAssistantDashboard from './pages/HrAssistantDashboard';
+import HrAssistantDashboard from './pages/HrAssistant/Dashboard';
 import HrStaffDashboard from './pages/HrStaffDashboard';
 import ManagerDashboard from './pages/ManagerDashboard';
 import ApplicantDashboard from './pages/ApplicantDashboard';
 import EmployeeDashboard from './pages/EmployeeDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import HrAssistantLayout from './pages/HrAssistant/HrAssistantLayout';
+import EmployeeRecords from './pages/HrAssistant/EmployeeRecords';
 
 function App() {
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
+  }, []);
   return (
     <Router>
       <Routes>
@@ -22,10 +33,15 @@ function App() {
           path="/dashboard/hr-assistant"
           element={
             <ProtectedRoute role="HR Assistant">
-              <HrAssistantDashboard />
+              <HrAssistantLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          {/* Default component shown when visiting /dashboard/hr-assistant */}
+          <Route index element={<HrAssistantDashboard />} />
+          <Route path="employee-records" element={<EmployeeRecords />} />
+        </Route>
+
 
         <Route
           path="/dashboard/hr-staff"
