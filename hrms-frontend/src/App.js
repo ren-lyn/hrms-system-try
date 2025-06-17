@@ -42,8 +42,7 @@ function App() {
           <Route path="employee-records" element={<EmployeeRecords />} />
         </Route>
 
-        <Route index element={<HrAssistantDashboard />} />
-          <Route path="/dashboard/hr-assistant" element={<HrAssistantDashboard />} />
+
         
 
         <Route
