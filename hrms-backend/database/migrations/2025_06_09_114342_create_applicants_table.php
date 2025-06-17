@@ -11,7 +11,8 @@ class CreateApplicantsTable extends Migration
         Schema::create('applicants', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->unique(); // One-to-one with users table
-            $table->string('full_name');
+            $table->string('first_name');
+            $table->string('last_name');
             $table->string('email')->unique();
             $table->string('contact_number')->nullable();
             $table->text('resume_path')->nullable();

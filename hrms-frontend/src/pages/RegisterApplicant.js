@@ -5,10 +5,13 @@ import axios from 'axios';
 const RegisterApplicant = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    name: '',
+    first_name: '',
+    last_name: '',
     email: '',
     password: '',
     password_confirmation: '',
+    phone: '',
+    resume: ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -29,6 +32,9 @@ const RegisterApplicant = () => {
     } catch (err) {
       if (err.response?.data?.message) {
         setError(err.response.data.message);
+      } else if (err.response?.data?.errors) {
+        const firstError = Object.values(err.response.data.errors)[0][0];
+        setError(firstError);
       } else {
         setError('Registration failed. Please try again.');
       }
@@ -45,12 +51,24 @@ const RegisterApplicant = () => {
 
         <form onSubmit={handleRegister}>
           <div className="mb-3">
-            <label className="form-label">Full Name</label>
+            <label className="form-label">First Name</label>
             <input
               type="text"
               className="form-control"
-              name="name"
-              value={form.name}
+              name="first_name"
+              value={form.first_name}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="mb-3">
+            <label className="form-label">Last Name</label>
+            <input
+              type="text"
+              className="form-control"
+              name="last_name"
+              value={form.last_name}
               onChange={handleChange}
               required
             />
@@ -67,6 +85,18 @@ const RegisterApplicant = () => {
               required
             />
           </div>
+
+          <div className="mb-3">
+            <label className="form-label">Phone (optional)</label>
+            <input
+              type="text"
+              className="form-control"
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+            />
+          </div>
+
 
           <div className="mb-3">
             <label className="form-label">Password</label>

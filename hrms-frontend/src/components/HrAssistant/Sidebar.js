@@ -13,7 +13,7 @@ const Sidebar = () => {
       </div>
       <ul className="nav flex-column p-3">
         <li className="nav-item">
-          <NavLink to="dashboard" className="nav-link">📊 Dashboard</NavLink>
+          <NavLink to="" className="nav-link">📊 Dashboard</NavLink>
         </li>
         <li className="nav-item">
           <NavLink to="attendance" className="nav-link">🕒 Attendance</NavLink>
