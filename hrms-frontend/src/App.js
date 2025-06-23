@@ -37,7 +37,6 @@ function App() {
             </ProtectedRoute>
           }
         >
-          {/* Default component shown when visiting /dashboard/hr-assistant */}
           <Route index element={<HrAssistantDashboard />} />
           <Route path="employee-records" element={<EmployeeRecords />} />
         </Route>

@@ -193,10 +193,10 @@ const EmployeeRecords = () => {
 
   return (
     <div>
-      <h3 className="fw-bold mb-3">Employee Records</h3>
+      
 
-      <div className="mb-3 d-flex justify-content-between flex-wrap gap-2">
-        <div className="d-flex gap-2 flex-wrap">
+      <div className="employee-records-header">
+        <div className="employee-records-controls d-flex gap-2 flex-wrap">
           <input
             type="text"
             className="form-control"
@@ -212,12 +212,19 @@ const EmployeeRecords = () => {
             onChange={(e) => setDepartmentFilter(e.target.value)}
           />
         </div>
-        <div className="d-flex gap-2">
-          <Button variant="outline-primary" onClick={exportCSV}>Export CSV</Button>
-          <Button variant="outline-danger" onClick={exportPDF}>Export PDF</Button>
-          <Button variant="primary" onClick={() => setShowModal(true)}>+ Add Employee</Button>
+        <div className="employee-records-actions d-flex gap-2 flex-wrap">
+          <Button variant="outline-primary" size="sm" onClick={exportCSV}>
+            Export CSV
+          </Button>
+          <Button variant="outline-danger" size="sm" onClick={exportPDF}>
+            Export PDF
+          </Button>
+          <Button variant="primary" size="sm" onClick={() => setShowModal(true)}>
+            + Add Employee
+          </Button>
         </div>
       </div>
+
 
       <Table bordered hover>
         <thead className="table-light">

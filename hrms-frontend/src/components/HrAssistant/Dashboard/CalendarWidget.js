@@ -1,21 +1,36 @@
-// src/components/HrAssistant/Dashboard/CalendarWidget.jsx
-import React from 'react';
-import { Card } from 'react-bootstrap';
+// src/components/HrAssistant/Dashboard/CalendarWidget.js
+import React, { useEffect, useState } from 'react';
 
 const CalendarWidget = () => {
-  return (
-    <Card className="w-full mb-4">
-      <Card.Body className="p-4">
-        <h4 className="font-semibold text-lg mb-2">15 February 2025</h4>
-        <div className="grid grid-cols-7 gap-1 text-center text-xs">
-          {[...'SMTWTFS'].map((day, i) => <div key={i}>{day}</div>)}
-          {[...Array(29).keys()].map(i => (
-            <div key={i} className="py-1 rounded bg-gray-100">{i + 1}</div>
-          ))}
-        </div>
-      </Card.Body>
-    </Card>
-  );
+  const [calendarHTML, setCalendarHTML] = useState('');
+
+  useEffect(() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const lastDate = new Date(year, month + 1, 0).getDate();
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    let days = `<div class="calendar-header">${monthNames[month]} ${year}</div>`;
+    days += `<div class="calendar-grid">
+              <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>`;
+
+    for (let i = 0; i < firstDay; i++) {
+      days += `<span></span>`;
+    }
+
+    for (let i = 1; i <= lastDate; i++) {
+      const isToday = i === today.getDate() ? 'today' : '';
+      days += `<span class="${isToday}">${i}</span>`;
+    }
+
+    days += `</div>`;
+    setCalendarHTML(days);
+  }, []);
+
+  return <div id="calendar" dangerouslySetInnerHTML={{ __html: calendarHTML }} />;
 };
 
 export default CalendarWidget;
