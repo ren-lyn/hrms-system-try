@@ -202,7 +202,7 @@ export default function JobPortal() {
             onMouseOver={(e) => (e.target.style.backgroundColor = "#0056b3")}
             onMouseOut={(e) => (e.target.style.backgroundColor = "#007bff")}
           >
-            Scroll Down for Job Details
+            Job Details
           </button>
         </div>
 
