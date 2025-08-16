@@ -5,13 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class LeaveRequest extends Model
+class Leave extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'employee_id', 'type', 'from', 'to', 'status'
-    ];
+    protected $fillable = ['employee_id', 'type', 'from', 'to', 'status'];
 
     public function employee()
     {
