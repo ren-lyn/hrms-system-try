@@ -10,11 +10,21 @@ class CreateEvaluationsTable extends Migration
     {
         Schema::create('evaluations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('employee_id')->constrained('employee_profiles')->onDelete('cascade');
-            $table->foreignId('manager_id')->constrained('users')->onDelete('cascade');
-            $table->date('evaluation_date');
-            $table->integer('score');
-            $table->text('remarks')->nullable();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Employee being evaluated
+            $table->foreignId('evaluator_id')->constrained('users')->onDelete('cascade'); // Evaluator (e.g., HR Assistant)
+
+            $table->tinyInteger('punctuality')->unsigned();
+            $table->tinyInteger('attitude')->unsigned();
+            $table->tinyInteger('quality_of_work')->unsigned();
+            $table->tinyInteger('initiative')->unsigned();
+            $table->tinyInteger('teamwork')->unsigned();
+            $table->tinyInteger('trustworthiness')->unsigned();
+
+            $table->integer('total_score');
+            $table->enum('status', ['Draft', 'Final'])->default('Draft');
+
+            $table->json('remarks')->nullable(); // ✅ Store as JSON
+            $table->text('comments')->nullable(); // ✅ Optional final comment field from frontend
             $table->timestamps();
         });
     }

@@ -5,28 +5,29 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Evaluation extends Model
+class EmployeeEvaluation extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'user_id',
         'evaluator_id',
-        'punctuality',
+        'evaluation_date',
+        'job_title',
+        'date_hired',
+        'date_last_increased',
+        'beginning_rate',
+        'present_rate',
+        'rate_per_hour',
+        'punctuality_attendance',
         'attitude',
         'quality_of_work',
         'initiative',
         'teamwork',
-        'trustworthiness',
+        'trustworthy',
+        'remarks',
         'total_score',
         'status',
-        'remarks',
-        'comments', // ✅ include new comments field
-    ];
-
-    // ✅ Automatically cast `remarks` to/from JSON array
-    protected $casts = [
-        'remarks' => 'array',
     ];
 
     public function employee()

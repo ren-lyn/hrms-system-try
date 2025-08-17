@@ -19,6 +19,9 @@ import EmployeeRecords from './pages/HrAssistant/EmployeeRecords';
 import HRLeaveDashboard from './pages/hr/HRLeaveDashboard'; // ✅ HR Assistant leave view
 import EmployeeLeaveRequest from './components/Employee/EmployeeLeaveRequest'; // ✅ Employee leave form
 
+import EmployeeEvaluationList from './pages/HrAssistant/Evaluations/EmployeeEvaluationList';
+import EvaluationForm from './pages/HrAssistant/Evaluations/EvaluationForm';
+
 function App() {
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -47,6 +50,8 @@ function App() {
           <Route index element={<HrAssistantDashboard />} />
           <Route path="employee-records" element={<EmployeeRecords />} />
           <Route path="leave" element={<HRLeaveDashboard />} />
+          <Route path="evaluation" element={<EmployeeEvaluationList />} />
+          <Route path="evaluation/:id/form" element={<EvaluationForm />} />
         </Route>
 
         {/* HR Staff */}

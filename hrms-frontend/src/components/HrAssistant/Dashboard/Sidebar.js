@@ -67,7 +67,7 @@ const Sidebar = () => {
 
         <li>
           <NavLink
-            to="/hr-assistant/evaluation"
+            to="evaluation"
             className={({ isActive }) => (isActive ? 'active' : '')}
           >
             <FaStarHalfAlt /> Employee Evaluation

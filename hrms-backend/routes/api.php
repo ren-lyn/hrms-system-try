@@ -52,3 +52,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/hr/leave-requests', [LeaveController::class, 'index']); // hr views all
     Route::put('/hr/leave-requests/{id}/status', [LeaveController::class, 'updateStatus']); // hr updates status
 });
+
+Route::middleware(['auth:sanctum', 'role:HR Assistant'])->group(function () {
+    Route::get('/evaluations', [EmployeeEvaluationController::class, 'index']);
+    Route::post('/evaluations', [EmployeeEvaluationController::class, 'store']);
+    Route::get('/evaluations/{id}', [EmployeeEvaluationController::class, 'show']);
+    Route::put('/evaluations/{id}', [EmployeeEvaluationController::class, 'update']);
+    Route::delete('/evaluations/{id}', [EmployeeEvaluationController::class, 'destroy']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/evaluations', [EvaluationController::class, 'index']);
+    Route::get('/evaluations/{id}', [EvaluationController::class, 'show']);
+    Route::post('/evaluations', [EvaluationController::class, 'store']);
+    Route::put('/evaluations/{id}', [EvaluationController::class, 'update']);
+    Route::delete('/evaluations/{id}', [EvaluationController::class, 'destroy']);
+});
