@@ -4,6 +4,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import RegisterApplicant from './pages/RegisterApplicant';
+import JobPortal from './components/JobPortal'; // Add this import
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import HrAssistantDashboard from './pages/HrAssistant/Dashboard';
@@ -34,7 +35,8 @@ function App() {
     <Router>
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<JobPortal />} /> {/* Changed from Login to JobPortal */}
+        <Route path="/login" element={<Login />} /> {/* Moved Login to /login route */}
         <Route path="/register" element={<RegisterApplicant />} />
         <Route path="/unauthorized" element={<h2>Unauthorized Access</h2>} />
 

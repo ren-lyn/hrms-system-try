@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const jobs = [
@@ -79,12 +80,53 @@ const popularSearches = [
 ];
 
 export default function JobPortal() {
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+
+  // Check if user is logged in when component mounts
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+    if (token && role) {
+      setIsLoggedIn(true);
+      setUserRole(role);
+    }
+  }, []);
+
   const scrollToJobs = () => {
     document.getElementById("jobs-section").scrollIntoView({ behavior: "smooth" });
   };
 
+  const handleLoginClick = () => {
+    navigate("/login");
+  };
+
+  const handleLogoutClick = () => {
+    // Clear localStorage and update state
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    localStorage.removeItem('userId');
+    setIsLoggedIn(false);
+    setUserRole(null);
+    // Optionally redirect to home or show a message
+    window.location.reload(); // Refresh the page to reset any cached data
+  };
+
+  const handleApplyClick = (jobTitle = '') => {
+    if (!isLoggedIn) {
+      navigate("/login");
+    } else if (userRole === 'Applicant') {
+      // Handle job application logic here
+      alert(`Application submitted for: ${jobTitle}`);
+      // You can add actual application logic here
+    } else {
+      alert("Only applicants can apply for jobs. Please log in with an applicant account.");
+    }
+  };
+
   return (
-    <>
+    <div style={{ height: "100vh", overflowY: "auto" }}>
       {/* Navbar */}
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
         <div className="container">
@@ -116,7 +158,21 @@ export default function JobPortal() {
                 <button className="btn btn-link nav-link text-white">Contact</button>
               </li>
               <li className="nav-item">
-                <button className="btn btn-success ms-2">Log In</button>
+                {isLoggedIn ? (
+                  <button 
+                    className="btn btn-danger ms-2"
+                    onClick={handleLogoutClick}
+                  >
+                    Log Out
+                  </button>
+                ) : (
+                  <button 
+                    className="btn btn-success ms-2"
+                    onClick={handleLoginClick}
+                  >
+                    Log In
+                  </button>
+                )}
               </li>
             </ul>
           </div>
@@ -265,7 +321,10 @@ export default function JobPortal() {
               Be a part of a company that invests in your growth and
               development.
             </p>
-            <button className="btn btn-light text-dark fw-bold px-4 py-2 mt-2">
+            <button 
+              className="btn btn-light text-dark fw-bold px-4 py-2 mt-2"
+              onClick={() => handleApplyClick()}
+            >
               Apply Now
             </button>
           </div>
@@ -354,7 +413,12 @@ export default function JobPortal() {
                 </div>
               </div>
               <div className="text-md-end">
-                <button className="btn btn-success mb-2">Apply Now</button>
+                <button 
+                  className="btn btn-success mb-2"
+                  onClick={() => handleApplyClick(job.title)}
+                >
+                  Apply Now
+                </button>
                 <div>
                   <small className="text-muted">{job.date}</small>
                 </div>
@@ -363,6 +427,6 @@ export default function JobPortal() {
           ))}
         </div>
       </section>
-    </>
+    </div>
   );
 }

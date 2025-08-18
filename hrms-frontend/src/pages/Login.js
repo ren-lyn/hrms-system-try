@@ -24,6 +24,7 @@ const Login = () => {
     // Store in localStorage
     localStorage.setItem('token', access_token);
     localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('role', user.role.name); // Store role separately for easier access
 
     // ✅ Set axios Authorization header for future requests
     axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
@@ -40,7 +41,7 @@ const Login = () => {
         navigate('/dashboard/manager');
         break;
       case 'Applicant':
-        navigate('/dashboard/applicant');
+        navigate('/'); // Redirect to Job Portal (root route) for Applicants
         break;
       case 'Employee':
         navigate('/dashboard/employee');
@@ -53,7 +54,6 @@ const Login = () => {
     setError('Login failed. Check your credentials.');
   }
 };
-
 
   return (
     <div className="container vh-100 d-flex align-items-center justify-content-center">

@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\JobPostingController;
 use App\Http\Controllers\Api\ApplicantController;
 use App\Http\Controllers\Api\LeaveRequestController;
 use App\Http\Controllers\Api\LeaveController;
+use App\Http\Controllers\Api\EmployeeEvaluationController;
+use App\Http\Controllers\Api\EvaluationController; 
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/job-postings', [JobPostingController::class, 'index']);
