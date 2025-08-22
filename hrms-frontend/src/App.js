@@ -23,6 +23,10 @@ import EmployeeLeaveRequest from './components/Employee/EmployeeLeaveRequest'; /
 import EmployeeEvaluationList from './pages/HrAssistant/Evaluations/EmployeeEvaluationList';
 import EvaluationForm from './pages/HrAssistant/Evaluations/EvaluationForm';
 
+// ✅ Toastify imports
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 function App() {
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -33,6 +37,9 @@ function App() {
 
   return (
     <Router>
+      {/* ✅ Toast container goes here so it works globally */}
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<JobPortal />} /> {/* Changed from Login to JobPortal */}
