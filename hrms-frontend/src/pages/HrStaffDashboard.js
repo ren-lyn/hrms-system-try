@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import JobPostings from "../components/JobPostings";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   faBriefcase,
   faUsers,
@@ -28,6 +30,73 @@ const HrStaffDashboard = () => {
     const timer = setInterval(() => setTimeNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Toast notification helpers
+  const showSuccess = (message) => toast.success(message);
+  const showError = (message) => toast.error(message);
+  const showInfo = (message) => toast.info(message);
+
+  // Logout functionality
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    
+    // Show confirmation dialog
+    const confirmLogout = window.confirm("Are you sure you want to logout?");
+    if (!confirmLogout) {
+      return;
+    }
+
+    const loadingToast = toast.loading('Logging out...');
+
+    try {
+      // Check if token exists
+      const token = localStorage.getItem('token');
+      
+      if (token) {
+        // Optional: Call logout API endpoint if your backend has one
+        // This is useful for invalidating tokens on the server side
+        try {
+          // Uncomment and modify this if you have a logout API endpoint
+          // await axios.post('http://localhost:8000/api/logout', {}, {
+          //   headers: { Authorization: `Bearer ${token}` }
+          // });
+        } catch (apiError) {
+          // Don't prevent logout if API call fails
+          console.warn('Logout API call failed:', apiError);
+        }
+      }
+
+      // Clear all authentication data from localStorage
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('userRole');
+      localStorage.removeItem('userId');
+      
+      // Clear any other stored user data
+      sessionStorage.clear();
+
+      toast.dismiss(loadingToast);
+      showSuccess('Logged out successfully!');
+
+      // Redirect to login page after a short delay
+      setTimeout(() => {
+        // Redirect based on your routing setup
+        if (typeof window !== 'undefined') {
+          // If using React Router, you might use navigate instead
+          window.location.href = '/';
+          // Alternative: window.location.replace('/login');
+          
+          // If you're using React Router with useNavigate:
+          // navigate('/login', { replace: true });
+        }
+      }, 1000);
+
+    } catch (error) {
+      toast.dismiss(loadingToast);
+      console.error('Logout error:', error);
+      showError('Logout failed. Please try again.');
+    }
+  };
 
   const getHeaderTitle = () => {
     switch (activeView) {
@@ -221,9 +290,13 @@ const HrStaffDashboard = () => {
           </li>
         </ul>
         <div className="mt-auto pt-3 border-top">
-          <a href="/logout" className="nav-link text-danger">
+          <button 
+            onClick={handleLogout}
+            className="btn btn-link nav-link text-danger text-start p-0 w-100"
+            style={{ textDecoration: 'none' }}
+          >
             <FontAwesomeIcon icon={faSignOutAlt} className="me-2" /> Logout
-          </a>
+          </button>
         </div>
       </div>
 
@@ -283,6 +356,20 @@ const HrStaffDashboard = () => {
           {renderContent()}
         </div>
       </div>
+
+      {/* Toast Container */}
+      <ToastContainer 
+        position="top-center" 
+        autoClose={3000} 
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </div>
   );
 };

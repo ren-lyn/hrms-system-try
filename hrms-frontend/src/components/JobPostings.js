@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { Card, Button, Form, Modal, Collapse, Badge } from "react-bootstrap";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 const JobPostings = () => {
@@ -11,10 +14,77 @@ const JobPostings = () => {
     title: "",
     description: "",
     requirements: "",
-    status: "Open", // default status
+    status: "Open",
   });
   const [isEditing, setIsEditing] = useState(false);
   const [expandedJob, setExpandedJob] = useState(null);
+
+  // Toast notification helpers - same as EmployeeRecords
+  const showError = (message) => toast.error(message);
+  const showSuccess = (message) => toast.success(message);
+  const showWarning = (message) => toast.warning(message);
+  const showInfo = (message) => toast.info(message);
+
+  // ✅ Common error handler - same pattern as EmployeeRecords
+  const handleAxiosError = (error, defaultMessage) => {
+    console.error('Axios error:', error);
+
+    if (error.response) {
+      if (error.response.status === 401) {
+        showError('Authentication failed. Please log in again.');
+      } else if (error.response.status === 403) {
+        showError('Access denied. You don\'t have permission to perform this action.');
+      } else if (error.response.status === 404) {
+        showWarning('Resource not found.');
+      } else if (error.response.status === 409) {
+        // Handle duplicate job title or conflicts
+        const message = error.response.data?.message || '';
+        if (message.toLowerCase().includes('title')) {
+          showError('Job title already exists. Please use a different title.');
+        } else {
+          showError(message || 'Conflict error. Please check your input.');
+        }
+      } else if (error.response.status === 422) {
+        const validationErrors = error.response.data.errors;
+        if (validationErrors) {
+          const errorMessages = Object.values(validationErrors).flat();
+          showError(`Validation error: ${errorMessages.join(', ')}`);
+        } else {
+          showError('Validation failed. Please check your input.');
+        }
+      } else if (error.response.status >= 500) {
+        showError('Server error occurred. Please try again later.');
+      } else {
+        showError(error.response.data?.message || defaultMessage);
+      }
+    } else if (error.request) {
+      showError('Network error. Please check your internet connection.');
+    } else if (error.code === 'ERR_NETWORK') {
+      showError('Network error. Please check your internet connection.');
+    } else if (error.code === 'ECONNABORTED') {
+      showError('Request timed out. Please try again.');
+    } else {
+      showError(defaultMessage);
+    }
+  };
+
+  // Fetch job postings from backend
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  const fetchJobs = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/api/job-postings");
+      setJobPosts(response.data);
+
+      if (response.data.length === 0) {
+        showInfo('No job postings found.');
+      }
+    } catch (error) {
+      handleAxiosError(error, 'Failed to load job postings. Please try again.');
+    }
+  };
 
   // Handle input changes
   const handleChange = (e) => {
@@ -39,34 +109,120 @@ const JobPostings = () => {
     setCurrentJob(job);
     setIsEditing(true);
     setShowModal(true);
+    showInfo(`Editing job posting: ${job.title}`);
   };
 
-  // Delete job
-  const handleDelete = (id) => {
-    setJobPosts(jobPosts.filter((job) => job.id !== id));
+  // Delete job (API + UI)
+  const handleDelete = async (id, jobTitle = 'this job posting') => {
+    if (window.confirm(`Are you sure you want to delete "${jobTitle}"?`)) {
+      const loadingToast = toast.loading('Deleting job posting...');
+      try {
+        await axios.delete(`http://localhost:8000/api/job-postings/${id}`);
+        
+        toast.dismiss(loadingToast);
+        setJobPosts(jobPosts.filter((job) => job.id !== id));
+        showSuccess(`"${jobTitle}" deleted successfully!`);
+      } catch (error) {
+        toast.dismiss(loadingToast);
+        handleAxiosError(error, 'Failed to delete job posting. Please try again.');
+      }
+    }
   };
 
   // Toggle job status (Open/Closed)
-  const handleToggleStatus = (id) => {
-    setJobPosts(
-      jobPosts.map((job) =>
-        job.id === id
-          ? { ...job, status: job.status === "Open" ? "Closed" : "Open" }
-          : job
-      )
-    );
+  const handleToggleStatus = async (id) => {
+    const job = jobPosts.find((j) => j.id === id);
+    const updatedStatus = job.status === "Open" ? "Closed" : "Open";
+
+    const loadingToast = toast.loading(`${updatedStatus === "Open" ? "Opening" : "Closing"} job posting...`);
+    try {
+      await axios.put(`http://localhost:8000/api/job-postings/${id}`, {
+        ...job,
+        status: updatedStatus,
+      });
+      
+      toast.dismiss(loadingToast);
+      setJobPosts(
+        jobPosts.map((j) =>
+          j.id === id ? { ...j, status: updatedStatus } : j
+        )
+      );
+      showSuccess(`"${job.title}" ${updatedStatus.toLowerCase()} successfully!`);
+    } catch (error) {
+      toast.dismiss(loadingToast);
+      handleAxiosError(error, 'Failed to update job status. Please try again.');
+    }
+  };
+
+  // Form validation - same pattern as EmployeeRecords
+  const validateForm = () => {
+    if (!currentJob.title.trim()) {
+      showError('Job title is required.');
+      return false;
+    }
+    if (!currentJob.description.trim()) {
+      showError('Job description is required.');
+      return false;
+    }
+    if (!currentJob.requirements.trim()) {
+      showError('Job requirements are required.');
+      return false;
+    }
+    return true;
   };
 
   // Save job (add or edit)
-  const handleSave = () => {
-    if (isEditing) {
-      setJobPosts(
-        jobPosts.map((job) => (job.id === currentJob.id ? currentJob : job))
-      );
-    } else {
-      setJobPosts([...jobPosts, { ...currentJob, id: Date.now() }]);
+  const handleSave = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
     }
+
+    const loadingToast = toast.loading(isEditing ? 'Updating job posting...' : 'Adding job posting...');
+
+    try {
+      if (isEditing) {
+        await axios.put(`http://localhost:8000/api/job-postings/${currentJob.id}`, currentJob);
+        setJobPosts(
+          jobPosts.map((job) =>
+            job.id === currentJob.id ? currentJob : job
+          )
+        );
+        toast.dismiss(loadingToast);
+        showSuccess(`Job posting "${currentJob.title}" updated successfully!`);
+      } else {
+        const response = await axios.post("http://localhost:8000/api/job-postings", currentJob);
+        setJobPosts([...jobPosts, response.data]);
+        toast.dismiss(loadingToast);
+        showSuccess(`Job posting "${currentJob.title}" added successfully!`);
+      }
+      setShowModal(false);
+      setCurrentJob({
+        id: null,
+        title: "",
+        description: "",
+        requirements: "",
+        status: "Open",
+      });
+      setIsEditing(false);
+    } catch (error) {
+      toast.dismiss(loadingToast);
+      handleAxiosError(error, isEditing ? 'Failed to update job posting. Please try again.' : 'Failed to add job posting. Please try again.');
+    }
+  };
+
+  // Close modal
+  const closeModal = () => {
     setShowModal(false);
+    setIsEditing(false);
+    setCurrentJob({
+      id: null,
+      title: "",
+      description: "",
+      requirements: "",
+      status: "Open",
+    });
   };
 
   // Toggle expand/collapse
@@ -95,7 +251,7 @@ const JobPostings = () => {
         </Button>
       </div>
 
-      {/* Empty State */}
+      {/* Job Posts */}
       {jobPosts.length === 0 ? (
         <motion.div
           className="text-center text-muted mt-5"
@@ -120,13 +276,7 @@ const JobPostings = () => {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card
-                  className="shadow border-0 h-100 rounded-4"
-                  style={{
-                    background: "rgba(255, 255, 255, 0.8)",
-                    backdropFilter: "blur(12px)",
-                  }}
-                >
+                <Card className="shadow border-0 h-100 rounded-4">
                   <Card.Body className="d-flex flex-column">
                     <div className="d-flex justify-content-between align-items-start mb-2">
                       <div>
@@ -168,7 +318,7 @@ const JobPostings = () => {
                           variant="outline-danger"
                           size="sm"
                           className="rounded-circle"
-                          onClick={() => handleDelete(job.id)}
+                          onClick={() => handleDelete(job.id, job.title)}
                         >
                           <i className="bi bi-trash"></i>
                         </Button>
@@ -213,12 +363,7 @@ const JobPostings = () => {
       )}
 
       {/* Modal for Add/Edit */}
-      <Modal
-        show={showModal}
-        onHide={() => setShowModal(false)}
-        centered
-        dialogClassName="rounded-4"
-      >
+      <Modal show={showModal} onHide={closeModal} centered>
         <Modal.Header
           closeButton
           style={{
@@ -230,15 +375,10 @@ const JobPostings = () => {
             {isEditing ? "Edit Job Posting" : "Add Job Posting"}
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body
-          style={{
-            background: "rgba(255, 255, 255, 0.9)",
-            backdropFilter: "blur(10px)",
-          }}
-        >
-          <Form>
+        <Form onSubmit={handleSave}>
+          <Modal.Body>
             <Form.Group className="mb-3">
-              <Form.Label className="fw-semibold">Job Title</Form.Label>
+              <Form.Label className="fw-semibold">Job Title *</Form.Label>
               <Form.Control
                 type="text"
                 name="title"
@@ -246,10 +386,11 @@ const JobPostings = () => {
                 onChange={handleChange}
                 placeholder="Enter job title"
                 className="rounded-3"
+                required
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label className="fw-semibold">Description</Form.Label>
+              <Form.Label className="fw-semibold">Description *</Form.Label>
               <Form.Control
                 as="textarea"
                 name="description"
@@ -258,10 +399,11 @@ const JobPostings = () => {
                 onChange={handleChange}
                 placeholder="Enter job description"
                 className="rounded-3"
+                required
               />
             </Form.Group>
             <Form.Group>
-              <Form.Label className="fw-semibold">Requirements</Form.Label>
+              <Form.Label className="fw-semibold">Requirements *</Form.Label>
               <Form.Control
                 as="textarea"
                 name="requirements"
@@ -270,40 +412,50 @@ const JobPostings = () => {
                 onChange={handleChange}
                 placeholder="Enter job requirements"
                 className="rounded-3"
+                required
               />
             </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer
-          style={{
-            background: "rgba(248, 249, 250, 0.9)",
-            backdropFilter: "blur(6px)",
-          }}
-        >
-          <Button
-            variant="outline-secondary"
-            className="rounded-pill px-3"
-            onClick={() => setShowModal(false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            className="rounded-pill px-4"
-            onClick={handleSave}
-          >
-            {isEditing ? (
-              <>
-                <i className="bi bi-check-circle me-1"></i> Save Changes
-              </>
-            ) : (
-              <>
-                <i className="bi bi-plus-circle me-1"></i> Add Job
-              </>
-            )}
-          </Button>
-        </Modal.Footer>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button
+              variant="outline-secondary"
+              className="rounded-pill px-3"
+              onClick={closeModal}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              className="rounded-pill px-4"
+              type="submit"
+            >
+              {isEditing ? (
+                <>
+                  <i className="bi bi-check-circle me-1"></i> Save Changes
+                </>
+              ) : (
+                <>
+                  <i className="bi bi-plus-circle me-1"></i> Add Job
+                </>
+              )}
+            </Button>
+          </Modal.Footer>
+        </Form>
       </Modal>
+
+      {/* Toast Container - same configuration as EmployeeRecords */}
+      <ToastContainer 
+        position="top-center" 
+        autoClose={3000} 
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </div>
   );
 };
