@@ -9,7 +9,6 @@ use App\Http\Controllers\Api\ApplicantController;
 use App\Http\Controllers\Api\LeaveRequestController;
 use App\Http\Controllers\Api\LeaveController;
 use App\Http\Controllers\Api\EmployeeEvaluationController;
-use App\Http\Controllers\Api\EvaluationController; 
 use App\Http\Controllers\API\EvaluationAdministrationController;
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -64,13 +63,7 @@ Route::middleware(['auth:sanctum', 'role:HR Assistant'])->group(function () {
     Route::delete('/evaluations/{id}', [EmployeeEvaluationController::class, 'destroy']);
 });
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/evaluations', [EvaluationController::class, 'index']);
-    Route::get('/evaluations/{id}', [EvaluationController::class, 'show']);
-    Route::post('/evaluations', [EvaluationController::class, 'store']);
-    Route::put('/evaluations/{id}', [EvaluationController::class, 'update']);
-    Route::delete('/evaluations/{id}', [EvaluationController::class, 'destroy']);
-});
+
 
 Route::middleware(['auth:sanctum'])->group(function () {
     
