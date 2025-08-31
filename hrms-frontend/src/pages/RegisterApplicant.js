@@ -332,7 +332,7 @@ const RegisterApplicant = () => {
               onClick={() => navigate('/')}
               type="button"
             >
-              ← Back to Home
+              ← Home
             </button>
             <div className="header-icon">
               <i className="bi bi-person-plus-fill text-white" style={{ fontSize: '2.2rem' }}></i>

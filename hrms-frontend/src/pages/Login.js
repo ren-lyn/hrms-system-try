@@ -57,7 +57,8 @@ const Login = () => {
       style={{
         minHeight: '100vh',
         width: '100%',
-        background: 'linear-gradient(135deg, #ccdff8ff 0%rgba(128, 169, 219, 1)e1 40%, #557aafff 100%)',
+        background:
+          'linear-gradient(135deg, #ccdff8ff 0%, rgba(128, 169, 219, 1) 40%, #557aafff 100%)',
         padding: '40px 20px',
         display: 'flex',
         justifyContent: 'center',
@@ -67,6 +68,7 @@ const Login = () => {
     >
       <style>{`
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
         html, body, #root {
           height: 100%;
         }
@@ -111,30 +113,61 @@ const Login = () => {
           position: relative;
         }
 
+        /* Back to Home button */
         .back-home-btn {
           position: absolute;
           top: 24px;
           left: 24px;
-          background: rgba(255,255,255,0.15);
-          color: #fff;
+          background: rgba(29, 84, 204, 0.27);
           border: none;
-          border-radius: 8px;
-          padding: 8px 18px;
-          font-weight: 600;
-          font-size: 0.95rem;
+          border-radius: 50%;
+          width: 44px;
+          height: 44px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           cursor: pointer;
-          letter-spacing: 0.03em;
-          box-shadow: 0 2px 8px rgba(30,64,175,0.10);
-          transition: background 0.2s;
+          box-shadow: 0 2px 8px rgba(22, 65, 184, 0.39);
+          transition: background 0.2s, transform 0.2s;
           z-index: 10;
         }
         .back-home-btn:hover {
-          background: rgba(255,255,255,0.25);
+          background: rgba(0, 87, 187, 0.88);
+          transform: scale(1.05);
         }
 
-       .welcome-content h6 {
+        .back-home-btn svg {
+          width: 22px;
+          height: 22px;
+          stroke: #ffffffff;
+          stroke-width: 2.5;
+          fill: none;
+        }
+
+        .back-home-btn span {
+          display: none; /* text hidden by default */
+          margin-left: 8px;
+          color: white;
+          font-weight: 600;
+          font-size: 0.9rem;
+        }
+
+        @media (min-width: 1025px) {
+          .back-home-btn {
+            border-radius: 8px;
+            width: auto;
+            height: auto;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.15);
+          }
+          .back-home-btn span {
+            display: inline;
+          }
+        }
+
+        .welcome-content h6 {
           font-family: 'Inter', sans-serif;          
-          font-size: 0.875rem;                       
+          font-size: clamp(0.75rem, 1vw, 0.875rem);
           font-weight: 500;
           margin-bottom: 16px;                       
           opacity: 0.85;
@@ -146,7 +179,7 @@ const Login = () => {
 
         .welcome-content h2 {
           font-family: 'Poppins', sans-serif;        
-          font-size: 2.75rem;                        
+          font-size: clamp(1.5rem, 4vw, 2.75rem);                        
           font-weight: 800;                          
           line-height: 1.1;                          
           margin-bottom: 20px;
@@ -161,7 +194,7 @@ const Login = () => {
 
         .welcome-content h5 {
           font-family: 'Inter', sans-serif;          
-          font-size: 1.125rem;                       
+          font-size: clamp(0.9rem, 2vw, 1.125rem);
           font-weight: 400;
           opacity: 0.8;
           line-height: 1.6;
@@ -183,13 +216,13 @@ const Login = () => {
           margin-bottom: 35px; 
         }
         .form-header h3 {
-          font-size: 1.6rem;
+          font-size: clamp(1.2rem, 3vw, 1.6rem);
           font-weight: 700;
           margin-bottom: 8px;
           color: #19396dff;
         }
         .form-header p {
-          font-size: 0.95rem;
+          font-size: clamp(0.85rem, 2vw, 0.95rem);
           color: #64748b;
         }
 
@@ -198,6 +231,7 @@ const Login = () => {
           justify-content: center; 
           gap: 15px; 
           margin-bottom: 35px; 
+          flex-wrap: wrap;
         }
 
         .role-btn {
@@ -311,7 +345,6 @@ const Login = () => {
         @media (max-width: 480px) {
           .form-input { padding: 13px 13px 13px 45px; font-size: 14px; }
           .input-icon { left: 15px; font-size: 16px; }
-          .welcome-content h2 { font-size: 1.5rem; }
         }
       `}</style>
 
@@ -325,11 +358,18 @@ const Login = () => {
               onClick={() => navigate('/')}
               type="button"
             >
-              ← Back to Home
+              <svg viewBox="0 0 24 24">
+                <path d="M3 9.5L12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V9.5z" />
+              </svg>
+              <span>Back to Home</span>
             </button>
+
             <div className="welcome-content">
               <h6>Welcome to</h6>
-              <h2>Cabuyao Concrete<br />Development Corporation</h2>
+              <h2>
+                Cabuyao Concrete
+                <br /> Development Corporation
+              </h2>
               <h5>Human Resource Management System</h5>
             </div>
           </div>
@@ -342,8 +382,18 @@ const Login = () => {
             </div>
 
             <div className="role-selector">
-              <button className={`role-btn ${role === 'Admin' ? 'active' : ''}`} onClick={() => setRole('Admin')}>Administrator</button>
-              <button className={`role-btn ${role === 'Employee' ? 'active' : ''}`} onClick={() => setRole('Employee')}>Employee</button>
+              <button
+                className={`role-btn ${role === 'Admin' ? 'active' : ''}`}
+                onClick={() => setRole('Admin')}
+              >
+                Administrator
+              </button>
+              <button
+                className={`role-btn ${role === 'Employee' ? 'active' : ''}`}
+                onClick={() => setRole('Employee')}
+              >
+                Employee
+              </button>
             </div>
 
             {error && <div className="error-alert">{error}</div>}
@@ -353,13 +403,13 @@ const Login = () => {
                 <label className="form-label">Username or Email</label>
                 <div className="input-wrapper">
                   <i className="bi bi-person-fill input-icon"></i>
-                  <input 
-                    type="text" 
-                    className="form-input" 
+                  <input
+                    type="text"
+                    className="form-input"
                     placeholder="Enter your User ID or Email"
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
-                    required 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
                   />
                 </div>
               </div>
@@ -368,18 +418,20 @@ const Login = () => {
                 <label className="form-label">Password</label>
                 <div className="input-wrapper">
                   <i className="bi bi-lock-fill input-icon"></i>
-                  <input 
-                    type="password" 
-                    className="form-input" 
+                  <input
+                    type="password"
+                    className="form-input"
                     placeholder="Enter your Password"
-                    value={password} 
-                    onChange={(e) => setPassword(e.target.value)} 
-                    required 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
                   />
                 </div>
               </div>
 
-              <button type="submit" className="login-button">Login</button>
+              <button type="submit" className="login-button">
+                Login
+              </button>
             </form>
 
             <div className="register-link">
