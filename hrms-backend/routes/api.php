@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\LeaveRequestController;
 use App\Http\Controllers\Api\LeaveController;
 use App\Http\Controllers\Api\EmployeeEvaluationController;
 use App\Http\Controllers\Api\EvaluationController; 
+use App\Http\Controllers\API\EvaluationAdministrationController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/job-postings', [JobPostingController::class, 'index']);
@@ -69,4 +70,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/evaluations', [EvaluationController::class, 'store']);
     Route::put('/evaluations/{id}', [EvaluationController::class, 'update']);
     Route::delete('/evaluations/{id}', [EvaluationController::class, 'destroy']);
+});
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    
+    // Evaluation Form Management (HR Assistant)
+    Route::prefix('evaluation-administration')->group(function () {
+        Route::get('/', [EvaluationAdministrationController::class, 'index']);
+        Route::post('/', [EvaluationAdministrationController::class, 'store']);
+        Route::get('/{id}', [EvaluationAdministrationController::class, 'show']);
+        Route::put('/{id}', [EvaluationAdministrationController::class, 'update']);
+        Route::delete('/{id}', [EvaluationAdministrationController::class, 'destroy']);
+        Route::put('/{id}/toggle-status', [EvaluationAdministrationController::class, 'toggleStatus']);
+        Route::post('/{id}/duplicate', [EvaluationAdministrationController::class, 'duplicate']);
+        Route::get('/active/forms', [EvaluationAdministrationController::class, 'getActiveForms']);
+    });
 });
