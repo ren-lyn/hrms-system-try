@@ -26,4 +26,7 @@ for frontend:
 12. npm install @fortawesome/react-fontawesome @fortawesome/free-solid-svg-icons
 13. npm install @fortawesome/fontawesome-free
 14. npm install react-toastify
-14. npm start
+15. npm install framer-motion
+16. npm install bootstrap-icons
+17. npm start
+
