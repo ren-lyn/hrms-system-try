@@ -22,7 +22,7 @@ import EmployeeLeaveRequest from './components/Employee/EmployeeLeaveRequest'; /
 
 import EmployeeEvaluationList from './pages/HrAssistant/Evaluations/EmployeeEvaluationList';
 import EvaluationForm from './pages/HrAssistant/Evaluations/EvaluationForm';
-
+import EvaluationAdministration from './components/EvaluationAdministration';
 // ✅ Toastify imports
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -61,6 +61,7 @@ function App() {
           <Route path="leave" element={<HRLeaveDashboard />} />
           <Route path="evaluation" element={<EmployeeEvaluationList />} />
           <Route path="evaluation/:id/form" element={<EvaluationForm />} />
+          <Route path="evaluation-administration" element={<EvaluationAdministration />} />
         </Route>
 
         {/* HR Staff */}

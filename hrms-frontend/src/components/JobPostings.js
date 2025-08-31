@@ -19,6 +19,11 @@ const JobPostings = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [expandedJob, setExpandedJob] = useState(null);
 
+  // New loading states to prevent multiple toasts
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [togglingId, setTogglingId] = useState(null);
+
   // Toast notification helpers - same as EmployeeRecords
   const showError = (message) => toast.error(message);
   const showSuccess = (message) => toast.success(message);
@@ -68,6 +73,7 @@ const JobPostings = () => {
     }
   };
 
+
   // Fetch job postings from backend
   useEffect(() => {
     fetchJobs();
@@ -79,7 +85,7 @@ const JobPostings = () => {
       setJobPosts(response.data);
 
       if (response.data.length === 0) {
-        showInfo('No job postings found.');
+        toast.info('No job postings found.', { toastId: 'no-job-postings' });
       }
     } catch (error) {
       handleAxiosError(error, 'Failed to load job postings. Please try again.');
@@ -115,6 +121,7 @@ const JobPostings = () => {
   // Delete job (API + UI)
   const handleDelete = async (id, jobTitle = 'this job posting') => {
     if (window.confirm(`Are you sure you want to delete "${jobTitle}"?`)) {
+      setDeletingId(id);
       const loadingToast = toast.loading('Deleting job posting...');
       try {
         await axios.delete(`http://localhost:8000/api/job-postings/${id}`);
@@ -125,12 +132,15 @@ const JobPostings = () => {
       } catch (error) {
         toast.dismiss(loadingToast);
         handleAxiosError(error, 'Failed to delete job posting. Please try again.');
+      } finally {
+        setDeletingId(null);
       }
     }
   };
 
   // Toggle job status (Open/Closed)
   const handleToggleStatus = async (id) => {
+    setTogglingId(id);
     const job = jobPosts.find((j) => j.id === id);
     const updatedStatus = job.status === "Open" ? "Closed" : "Open";
 
@@ -151,6 +161,8 @@ const JobPostings = () => {
     } catch (error) {
       toast.dismiss(loadingToast);
       handleAxiosError(error, 'Failed to update job status. Please try again.');
+    } finally {
+      setTogglingId(null);
     }
   };
 
@@ -174,11 +186,12 @@ const JobPostings = () => {
   // Save job (add or edit)
   const handleSave = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
+    setIsSubmitting(true);
     const loadingToast = toast.loading(isEditing ? 'Updating job posting...' : 'Adding job posting...');
 
     try {
@@ -209,6 +222,8 @@ const JobPostings = () => {
     } catch (error) {
       toast.dismiss(loadingToast);
       handleAxiosError(error, isEditing ? 'Failed to update job posting. Please try again.' : 'Failed to add job posting. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -297,6 +312,7 @@ const JobPostings = () => {
                           className="me-2 rounded-circle"
                           onClick={() => handleToggleStatus(job.id)}
                           title="Toggle Open/Close"
+                          disabled={togglingId === job.id}
                         >
                           <i
                             className={
@@ -314,14 +330,15 @@ const JobPostings = () => {
                         >
                           <i className="bi bi-pencil"></i>
                         </Button>
-                        <Button
-                          variant="outline-danger"
-                          size="sm"
-                          className="rounded-circle"
-                          onClick={() => handleDelete(job.id, job.title)}
-                        >
-                          <i className="bi bi-trash"></i>
-                        </Button>
+            <Button
+              variant="outline-danger"
+              size="sm"
+              className="rounded-circle"
+              onClick={() => handleDelete(job.id, job.title)}
+              disabled={deletingId === job.id}
+            >
+              <i className="bi bi-trash"></i>
+            </Button>
                       </div>
                     </div>
 
@@ -428,6 +445,7 @@ const JobPostings = () => {
               variant="primary"
               className="rounded-pill px-4"
               type="submit"
+              disabled={isSubmitting}
             >
               {isEditing ? (
                 <>
@@ -443,19 +461,7 @@ const JobPostings = () => {
         </Form>
       </Modal>
 
-      {/* Toast Container - same configuration as EmployeeRecords */}
-      <ToastContainer 
-        position="top-center" 
-        autoClose={3000} 
-        hideProgressBar={false}
-        newestOnTop={true}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
+
     </div>
   );
 };
