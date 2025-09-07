@@ -42,12 +42,15 @@ INSTALLED_APPS = [
     'django_filters',
     'drf_spectacular',
     'corsheaders',
+    'rest_framework_simplejwt.token_blacklist',
     # Local apps
     'employees',
     'attendance',
     'leave_mgmt',
     'payroll',
     'reports',
+    'discipline',
+    'benefits',
 ]
 
 MIDDLEWARE = [
@@ -158,3 +161,12 @@ SPECTACULAR_SETTINGS = {
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
