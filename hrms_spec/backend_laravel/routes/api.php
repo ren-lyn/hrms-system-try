@@ -67,10 +67,17 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::get('/recruitment/applications', [App\Http\Controllers\RecruitmentController::class, 'listApplications']);
 	Route::post('/recruitment/applications', [App\Http\Controllers\RecruitmentController::class, 'submitApplication']);
 	Route::patch('/recruitment/applications/{id}/status', [App\Http\Controllers\RecruitmentController::class, 'updateApplicationStatus']);
+	Route::get('/me/applications', [App\Http\Controllers\RecruitmentController::class, 'myApplications']);
+	Route::post('/recruitment/applications/{id}/documents', [App\Http\Controllers\RecruitmentController::class, 'uploadDocument']);
+	Route::post('/recruitment/applications/{id}/hire', [App\Http\Controllers\RecruitmentController::class, 'hire']);
+	Route::get('/recruitment/report', [App\Http\Controllers\RecruitmentController::class, 'report']);
 
 	// Onboarding
 	Route::post('/onboarding/assignments', [App\Http\Controllers\OnboardingController::class, 'assign']);
 	Route::patch('/onboarding/assignments/{id}', [App\Http\Controllers\OnboardingController::class, 'update']);
+	Route::get('/me/onboarding', [App\Http\Controllers\OnboardingController::class, 'myTasks']);
+	Route::post('/onboarding/sessions', [App\Http\Controllers\OnboardingController::class, 'scheduleSession']);
+	Route::get('/onboarding/checklist-report', [App\Http\Controllers\OnboardingController::class, 'checklistReport']);
 
 	// Benefits
 	Route::post('/benefits/enrollments', [App\Http\Controllers\BenefitController::class, 'enroll']);

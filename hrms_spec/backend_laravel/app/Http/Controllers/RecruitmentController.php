@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\JobPost;
 use App\Models\Application;
+use App\Models\Employee;
+use App\Models\ApplicationDocument;
+use Illuminate\Support\Facades\DB;
 
 class RecruitmentController extends Controller
 {
@@ -56,5 +59,45 @@ class RecruitmentController extends Controller
 		if ($request->has('interview_date')) $app->interview_date = $request->get('interview_date');
 		$app->save();
 		return response()->json($app);
+	}
+
+	public function myApplications(Request $request)
+	{
+		$user = $request->user();
+		return response()->json(Application::with('job')->where('applicant_user_id',$user->id)->orderByDesc('id')->paginate(50));
+	}
+
+	public function uploadDocument(Request $request, $id)
+	{
+		// expects doc_type and storage_url (pre-uploaded or via file service)
+		$app = Application::findOrFail($id);
+		$doc = ApplicationDocument::create($request->only(['doc_type','storage_url']) + [ 'application_id' => $app->id ]);
+		return response()->json($doc, 201);
+	}
+
+	public function hire(Request $request, $id)
+	{
+		// Convert application -> employee profile creation (basic)
+		$app = Application::with('job')->findOrFail($id);
+		DB::transaction(function() use ($app) {
+			$employee = Employee::create([
+				'user_id' => $app->applicant_user_id,
+				'employee_no' => null,
+				'hire_date' => now()->toDateString(),
+			]);
+		});
+		$app->status = 'hired';
+		$app->save();
+		return response()->json($app);
+	}
+
+	public function report(Request $request)
+	{
+		$from = $request->get('from');
+		$to = $request->get('to');
+		$q = Application::join('job_posts','job_posts.id','=','applications.job_id')
+			->selectRaw('applications.status, count(*) as count')
+			->groupBy('applications.status');
+		return response()->json(['totals' => $q->get()]);
 	}
 }

@@ -363,3 +363,25 @@ CREATE TABLE IF NOT EXISTS evaluation_criteria (
 	created_at TIMESTAMP NULL,
 	updated_at TIMESTAMP NULL
 ) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS application_documents (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  application_id BIGINT UNSIGNED NOT NULL,
+  doc_type VARCHAR(100) NOT NULL,
+  storage_url VARCHAR(255) NOT NULL,
+  uploaded_at TIMESTAMP NULL,
+  CONSTRAINT fk_app_docs_app FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS onboarding_sessions (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  employee_id BIGINT UNSIGNED NOT NULL,
+  title VARCHAR(150) NOT NULL,
+  description TEXT NULL,
+  scheduled_at DATETIME NOT NULL,
+  location VARCHAR(150) NULL,
+  status ENUM('scheduled','completed','cancelled') NOT NULL DEFAULT 'scheduled',
+  created_at TIMESTAMP NULL,
+  updated_at TIMESTAMP NULL,
+  CONSTRAINT fk_onb_sess_emp FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
