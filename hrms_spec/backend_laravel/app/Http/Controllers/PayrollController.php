@@ -9,6 +9,7 @@ use App\Models\Employee;
 use App\Models\EmployeeRecurringAllowance;
 use App\Models\EmployeeRecurringDeduction;
 use App\Models\EmployeeTaxTitle;
+use App\Models\BenefitContribution;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -51,6 +52,9 @@ class PayrollController extends Controller
 						'period' => [$run->period_start, $run->period_end],
 					]
 				]);
+
+				// Record benefit contributions (government types) for reporting
+				$this->recordBenefitContributions($e, $run->period_start, $run->period_end);
 			}
 		});
 		$run->status = 'finalized';
@@ -155,5 +159,24 @@ class PayrollController extends Controller
 		$taxTitle = EmployeeTaxTitle::where('employee_id', $e->id)->orderByDesc('effective_date')->first();
 		$rate = $taxTitle ? (float)optional($taxTitle->taxTitle)->rate_percent : 0.0;
 		return $taxable * ($rate / 100.0);
+	}
+
+	private function recordBenefitContributions(Employee $e, string $from, string $to): void
+	{
+		$govTypes = ['sss','phic','pagibig'];
+		$rows = \App\Models\Benefit::where('employee_id',$e->id)
+			->whereIn('type', $govTypes)
+			->where('status','active')
+			->get();
+		foreach ($rows as $b) {
+			BenefitContribution::create([
+				'employee_id' => $e->id,
+				'period_start' => $from,
+				'period_end' => $to,
+				'type' => $b->type,
+				'amount' => (float)$b->contribution,
+				'source' => 'payroll',
+			]);
+		}
 	}
 }

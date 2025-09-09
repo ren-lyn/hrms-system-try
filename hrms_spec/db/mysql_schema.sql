@@ -307,3 +307,16 @@ CREATE TABLE IF NOT EXISTS employee_recurring_allowances (
   CONSTRAINT fk_emp_recur_all_employee FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
   CONSTRAINT fk_emp_recur_all_title FOREIGN KEY (allowance_title_id) REFERENCES allowance_titles(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS benefits_contributions (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  employee_id BIGINT UNSIGNED NOT NULL,
+  period_start DATE NOT NULL,
+  period_end DATE NOT NULL,
+  type ENUM('sss','phic','pagibig','allowance') NOT NULL,
+  amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  source ENUM('payroll','manual') NOT NULL DEFAULT 'payroll',
+  created_at TIMESTAMP NULL,
+  updated_at TIMESTAMP NULL,
+  CONSTRAINT fk_ben_contrib_employee FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+) ENGINE=InnoDB;

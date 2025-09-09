@@ -19,6 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::get('/me/employee', [App\Http\Controllers\EmployeeController::class, 'me']);
 	Route::patch('/me/employee', [App\Http\Controllers\EmployeeController::class, 'updateMe']);
 	Route::get('/me/payslips', [App\Http\Controllers\PayrollController::class, 'myPayslips']);
+	Route::get('/me/benefits', [App\Http\Controllers\BenefitController::class, 'myBenefits']);
 
 	// Attendance
 	Route::post('/attendance/logs', [App\Http\Controllers\AttendanceController::class, 'ingest']);
@@ -66,6 +67,7 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::patch('/benefits/claims/{id}/approve', [App\Http\Controllers\BenefitController::class, 'approveClaim']);
 	Route::patch('/benefits/claims/{id}/reject', [App\Http\Controllers\BenefitController::class, 'rejectClaim']);
 	Route::delete('/benefits/enrollments/{id}', [App\Http\Controllers\BenefitController::class, 'terminateEnrollment']);
+	Route::get('/benefits/report', [App\Http\Controllers\BenefitController::class, 'report']);
 
 	// Disciplinary
 	Route::get('/disciplinary/actions', [App\Http\Controllers\DisciplinaryController::class, 'index']);
