@@ -7,11 +7,17 @@ Route::post('/auth/login', [App\Http\Controllers\AuthController::class, 'login']
 Route::middleware('auth:sanctum')->group(function () {
 	Route::get('/auth/me', [App\Http\Controllers\AuthController::class, 'me']);
 
-	// Employees
+	// Employees (HR/Admin)
 	Route::get('/employees', [App\Http\Controllers\EmployeeController::class, 'index']);
 	Route::post('/employees', [App\Http\Controllers\EmployeeController::class, 'store']);
 	Route::get('/employees/{id}', [App\Http\Controllers\EmployeeController::class, 'show']);
 	Route::patch('/employees/{id}', [App\Http\Controllers\EmployeeController::class, 'update']);
+	Route::delete('/employees/{id}', [App\Http\Controllers\EmployeeController::class, 'destroy']);
+	Route::get('/employees/report', [App\Http\Controllers\EmployeeController::class, 'report']);
+
+	// Employee self-service
+	Route::get('/me/employee', [App\Http\Controllers\EmployeeController::class, 'me']);
+	Route::patch('/me/employee', [App\Http\Controllers\EmployeeController::class, 'updateMe']);
 
 	// Attendance
 	Route::post('/attendance/logs', [App\Http\Controllers\AttendanceController::class, 'ingest']);
