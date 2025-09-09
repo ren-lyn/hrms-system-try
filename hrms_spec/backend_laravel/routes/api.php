@@ -94,7 +94,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
 	// Reports
 	Route::post('/reports/export', [App\Http\Controllers\ReportController::class, 'export']);
+	Route::get('/reports/csv', [App\Http\Controllers\ReportController::class, 'csv']);
 
 	// Analytics
 	Route::get('/analytics/turnover-risk', [App\Http\Controllers\AnalyticsController::class, 'turnoverRisk']);
+	Route::get('/analytics/turnover-risk/list', [App\Http\Controllers\AnalyticsController::class, 'riskList']);
+	Route::post('/analytics/turnover-risk/train', [App\Http\Controllers\AnalyticsController::class, 'train']);
 });

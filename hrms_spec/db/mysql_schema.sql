@@ -385,3 +385,13 @@ CREATE TABLE IF NOT EXISTS onboarding_sessions (
   updated_at TIMESTAMP NULL,
   CONSTRAINT fk_onb_sess_emp FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS report_jobs (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  type VARCHAR(50) NOT NULL,
+  params_json JSON NULL,
+  status ENUM('queued','processing','completed','failed') NOT NULL DEFAULT 'queued',
+  storage_url VARCHAR(255) NULL,
+  created_at TIMESTAMP NULL,
+  completed_at TIMESTAMP NULL
+) ENGINE=InnoDB;
