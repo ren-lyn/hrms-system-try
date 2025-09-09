@@ -14,8 +14,10 @@ class RecruitmentController extends Controller
 	public function listJobPosts(Request $request)
 	{
 		$status = $request->get('status');
+		$q = $request->get('q');
 		$query = JobPost::query();
 		if ($status) $query->where('status', $status);
+		if ($q) $query->where(function($sub) use ($q){ $sub->where('title','like',"%$q%")->orWhere('description','like',"%$q%")->orWhere('requirements','like',"%$q%"); });
 		return response()->json($query->orderBy('created_at','desc')->paginate(20));
 	}
 
@@ -41,6 +43,21 @@ class RecruitmentController extends Controller
 		return response()->json($post);
 	}
 
+	public function updateJobPost(Request $request, $id)
+	{
+		$post = JobPost::findOrFail($id);
+		$post->fill($request->only(['title','description','requirements','status']));
+		$post->save();
+		return response()->json($post);
+	}
+
+	public function deleteJobPost($id)
+	{
+		$post = JobPost::findOrFail($id);
+		$post->delete();
+		return response()->json(['deleted'=>true]);
+	}
+
 	public function submitApplication(Request $request)
 	{
 		$app = Application::create($request->only(['job_id','applicant_user_id','status','interview_date','resume_url','other_docs_url']));
@@ -57,6 +74,17 @@ class RecruitmentController extends Controller
 		$app = Application::findOrFail($id);
 		$app->status = $request->get('status');
 		if ($request->has('interview_date')) $app->interview_date = $request->get('interview_date');
+		$app->save();
+		return response()->json($app);
+	}
+
+	public function offerResponse($id, Request $request)
+	{
+		$app = Application::findOrFail($id);
+		$app->offer_response = $request->get('response'); // accepted|declined
+		if ($request->get('response') === 'accepted' && $request->get('contract_date')) {
+			$app->contract_date = $request->get('contract_date');
+		}
 		$app->save();
 		return response()->json($app);
 	}

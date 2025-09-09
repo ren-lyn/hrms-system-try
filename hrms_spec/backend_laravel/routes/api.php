@@ -60,6 +60,8 @@ Route::middleware('auth:sanctum')->group(function () {
 	// Recruitment & Job Posts
 	Route::get('/recruitment/job-posts', [App\Http\Controllers\RecruitmentController::class, 'listJobPosts']);
 	Route::post('/recruitment/job-posts', [App\Http\Controllers\RecruitmentController::class, 'createJobPost']);
+	Route::patch('/recruitment/job-posts/{id}', [App\Http\Controllers\RecruitmentController::class, 'updateJobPost']);
+	Route::delete('/recruitment/job-posts/{id}', [App\Http\Controllers\RecruitmentController::class, 'deleteJobPost']);
 	Route::patch('/recruitment/job-posts/{id}/publish', [App\Http\Controllers\RecruitmentController::class, 'publishJobPost']);
 	Route::patch('/recruitment/job-posts/{id}/close', [App\Http\Controllers\RecruitmentController::class, 'closeJobPost']);
 
@@ -70,6 +72,7 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::get('/me/applications', [App\Http\Controllers\RecruitmentController::class, 'myApplications']);
 	Route::post('/recruitment/applications/{id}/documents', [App\Http\Controllers\RecruitmentController::class, 'uploadDocument']);
 	Route::post('/recruitment/applications/{id}/hire', [App\Http\Controllers\RecruitmentController::class, 'hire']);
+	Route::post('/recruitment/applications/{id}/offer-response', [App\Http\Controllers\RecruitmentController::class, 'offerResponse']);
 	Route::get('/recruitment/report', [App\Http\Controllers\RecruitmentController::class, 'report']);
 
 	// Onboarding

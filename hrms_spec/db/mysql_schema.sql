@@ -395,3 +395,19 @@ CREATE TABLE IF NOT EXISTS report_jobs (
   created_at TIMESTAMP NULL,
   completed_at TIMESTAMP NULL
 ) ENGINE=InnoDB;
+
+-- Recruitment offer metadata
+ALTER TABLE applications
+	ADD COLUMN IF NOT EXISTS contract_date DATETIME NULL,
+	ADD COLUMN IF NOT EXISTS offer_response ENUM('accepted','declined') NULL,
+	ADD COLUMN IF NOT EXISTS details_json JSON NULL;
+
+-- Disciplinary categories
+CREATE TABLE IF NOT EXISTS disciplinary_categories (
+	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	name VARCHAR(150) NOT NULL,
+	code VARCHAR(50) UNIQUE,
+	is_active TINYINT(1) NOT NULL DEFAULT 1,
+	created_at TIMESTAMP NULL,
+	updated_at TIMESTAMP NULL
+) ENGINE=InnoDB;
