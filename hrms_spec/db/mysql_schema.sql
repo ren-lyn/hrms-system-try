@@ -239,3 +239,71 @@ CREATE TABLE IF NOT EXISTS turnover_risk (
   UNIQUE KEY uniq_emp_asof (employee_id, as_of_date),
   CONSTRAINT fk_turnover_risk_employee FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS tax_titles (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  rate_percent DECIMAL(5,2) NOT NULL DEFAULT 0.00,
+  active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NULL,
+  updated_at TIMESTAMP NULL
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS employee_tax_titles (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  employee_id BIGINT UNSIGNED NOT NULL,
+  tax_title_id BIGINT UNSIGNED NOT NULL,
+  effective_date DATE NOT NULL,
+  created_at TIMESTAMP NULL,
+  updated_at TIMESTAMP NULL,
+  CONSTRAINT fk_emp_tax_employee FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
+  CONSTRAINT fk_emp_tax_title FOREIGN KEY (tax_title_id) REFERENCES tax_titles(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS deduction_titles (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  code VARCHAR(50) UNIQUE,
+  amount_type ENUM('fixed','percent') NOT NULL DEFAULT 'fixed',
+  value DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NULL,
+  updated_at TIMESTAMP NULL
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS employee_recurring_deductions (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  employee_id BIGINT UNSIGNED NOT NULL,
+  deduction_title_id BIGINT UNSIGNED NOT NULL,
+  amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  start_date DATE NULL,
+  end_date DATE NULL,
+  created_at TIMESTAMP NULL,
+  updated_at TIMESTAMP NULL,
+  CONSTRAINT fk_emp_recur_ded_employee FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
+  CONSTRAINT fk_emp_recur_ded_title FOREIGN KEY (deduction_title_id) REFERENCES deduction_titles(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS allowance_titles (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  code VARCHAR(50) UNIQUE,
+  amount_type ENUM('fixed','percent') NOT NULL DEFAULT 'fixed',
+  value DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NULL,
+  updated_at TIMESTAMP NULL
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS employee_recurring_allowances (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  employee_id BIGINT UNSIGNED NOT NULL,
+  allowance_title_id BIGINT UNSIGNED NOT NULL,
+  amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  start_date DATE NULL,
+  end_date DATE NULL,
+  created_at TIMESTAMP NULL,
+  updated_at TIMESTAMP NULL,
+  CONSTRAINT fk_emp_recur_all_employee FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
+  CONSTRAINT fk_emp_recur_all_title FOREIGN KEY (allowance_title_id) REFERENCES allowance_titles(id) ON DELETE CASCADE
+) ENGINE=InnoDB;

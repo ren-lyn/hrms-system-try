@@ -18,6 +18,7 @@ Route::middleware('auth:sanctum')->group(function () {
 	// Employee self-service
 	Route::get('/me/employee', [App\Http\Controllers\EmployeeController::class, 'me']);
 	Route::patch('/me/employee', [App\Http\Controllers\EmployeeController::class, 'updateMe']);
+	Route::get('/me/payslips', [App\Http\Controllers\PayrollController::class, 'myPayslips']);
 
 	// Attendance
 	Route::post('/attendance/logs', [App\Http\Controllers\AttendanceController::class, 'ingest']);
@@ -32,8 +33,11 @@ Route::middleware('auth:sanctum')->group(function () {
 	// Payroll
 	Route::post('/payroll/runs', [App\Http\Controllers\PayrollController::class, 'createRun']);
 	Route::post('/payroll/runs/{id}/process', [App\Http\Controllers\PayrollController::class, 'processRun']);
+	Route::post('/payroll/runs/{id}/finalize', [App\Http\Controllers\PayrollController::class, 'finalize']);
+	Route::post('/payroll/runs/{id}/paid', [App\Http\Controllers\PayrollController::class, 'markPaid']);
 	Route::get('/payroll/summary', [App\Http\Controllers\PayrollController::class, 'summary']);
 	Route::get('/payroll/runs/{id}/items', [App\Http\Controllers\PayrollController::class, 'items']);
+	Route::patch('/employees/{employeeId}/salary', [App\Http\Controllers\PayrollController::class, 'updateSalary']);
 
 	// Performance
 	Route::post('/performance/reviews', [App\Http\Controllers\PerformanceController::class, 'store']);
