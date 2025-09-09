@@ -1,4 +1,5 @@
 from rest_framework import generics, permissions
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from django.utils import timezone
@@ -70,6 +71,7 @@ class ApplicationCreateView(generics.CreateAPIView):
     queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
     permission_classes = [permissions.AllowAny]
+    parser_classes = [MultiPartParser, FormParser]
 
 
 class ApplicationAdminListView(generics.ListAPIView):
