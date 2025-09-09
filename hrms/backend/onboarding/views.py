@@ -30,6 +30,21 @@ class DocumentRequestUploadView(generics.UpdateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 
+class DocumentRequestListView(generics.ListAPIView):
+    serializer_class = DocumentRequestSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        qs = DocumentRequest.objects.all().order_by('-id')
+        employee_id = self.request.query_params.get('employeeId')
+        status = self.request.query_params.get('status')
+        if employee_id:
+            qs = qs.filter(employee_id=employee_id)
+        if status:
+            qs = qs.filter(status=status)
+        return qs
+
+
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def approve_document(request, pk: int):
