@@ -7,6 +7,7 @@ use App\Models\Evaluation;
 use App\Models\EvaluationItem;
 use App\Models\EvaluationSchedule;
 use App\Models\EvaluationGoal;
+use App\Models\EvaluationCriteria;
 use Carbon\Carbon;
 
 class PerformanceController extends Controller
@@ -83,5 +84,32 @@ class PerformanceController extends Controller
 			['label' => 'Needs Improvement (<75)', 'count' => $rows->where('total_score','<',75)->count()],
 		];
 		return response()->json(['buckets' => $buckets, 'avgScore' => $avg]);
+	}
+
+	public function criteria()
+	{
+		$list = EvaluationCriteria::where('is_active', 1)->orderBy('category')->orderBy('name')->get();
+		$grouped = [];
+		foreach ($list as $c) {
+			$grouped[$c->category][] = [ 'id' => $c->id, 'name' => $c->name ];
+		}
+		return response()->json($grouped);
+	}
+
+	public function export($id)
+	{
+		$eval = Evaluation::with(['items','employee.user','manager.user'])->findOrFail($id);
+		$rows = '';
+		foreach ($eval->items as $it) {
+			$rows .= '<tr><td>'.htmlspecialchars($it->category).'</td><td>'.htmlspecialchars($it->question).'</td><td>'.(int)$it->score.'</td><td>'.htmlspecialchars((string)$it->comment).'</td></tr>';
+		}
+		$html = '<html><head><meta charset="utf-8"/><title>Evaluation Export</title><style>body{font-family:Arial} table{width:100%;border-collapse:collapse} th,td{border:1px solid #ddd;padding:8px;text-align:left}</style></head><body>'
+			.'<h2>Performance Evaluation</h2>'
+			.'<div><strong>Employee:</strong> '.htmlspecialchars(optional($eval->employee->user)->name ?? ('#'.$eval->employee_id)).'</div>'
+			.'<div><strong>Period:</strong> '.htmlspecialchars($eval->period_start).' - '.htmlspecialchars($eval->period_end).'</div>'
+			.'<div><strong>Total Score:</strong> '.(int)$eval->total_score.'</div>'
+			.'<br/><table><thead><tr><th>Category</th><th>Criterion</th><th>Score</th><th>Comment</th></tr></thead><tbody>'.$rows.'</tbody></table>'
+			.'</body></html>';
+		return response($html, 200, [ 'Content-Type' => 'text/html; charset=utf-8' ]);
 	}
 }

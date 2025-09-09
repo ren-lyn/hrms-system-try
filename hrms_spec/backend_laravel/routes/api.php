@@ -51,6 +51,8 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::post('/performance/reviews/{id}/approve', [App\Http\Controllers\PerformanceController::class, 'approve']);
 	Route::get('/performance/reviews', [App\Http\Controllers\PerformanceController::class, 'index']);
 	Route::get('/performance/summary', [App\Http\Controllers\PerformanceController::class, 'summary']);
+	Route::get('/performance/criteria', [App\Http\Controllers\PerformanceController::class, 'criteria']);
+	Route::get('/performance/reviews/{id}/export', [App\Http\Controllers\PerformanceController::class, 'export']);
 	Route::get('/me/performance', [App\Http\Controllers\PerformanceController::class, 'myEvaluations']);
 	Route::get('/performance/goals', [App\Http\Controllers\PerformanceController::class, 'goals']);
 	Route::post('/performance/goals', [App\Http\Controllers\PerformanceController::class, 'upsertGoal']);
