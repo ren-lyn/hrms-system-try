@@ -9,6 +9,7 @@ use App\Models\EvaluationSchedule;
 use App\Models\EvaluationGoal;
 use App\Models\EvaluationCriteria;
 use Carbon\Carbon;
+use App\Http\Requests\EvaluationStoreRequest;
 
 class PerformanceController extends Controller
 {
@@ -20,10 +21,10 @@ class PerformanceController extends Controller
 		return response()->json($query->orderBy('created_at','desc')->paginate(50));
 	}
 
-	public function store(Request $request)
+	public function store(EvaluationStoreRequest $request)
 	{
 		$evaluation = Evaluation::create($request->only(['employee_id','manager_id','period_start','period_end','total_score','pass_threshold','feedback']));
-		foreach ($request->get('items', []) as $item) {
+		foreach ($request->validated('items') as $item) {
 			EvaluationItem::create([ 'evaluation_id' => $evaluation->id ] + $item);
 		}
 		return response()->json($evaluation->load('items'), 201);

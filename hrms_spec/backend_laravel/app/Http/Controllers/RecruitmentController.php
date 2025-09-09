@@ -8,6 +8,9 @@ use App\Models\Application;
 use App\Models\Employee;
 use App\Models\ApplicationDocument;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\JobPostStoreRequest;
+use App\Http\Requests\JobPostUpdateRequest;
+use App\Http\Requests\ApplicationStoreRequest;
 
 class RecruitmentController extends Controller
 {
@@ -21,9 +24,9 @@ class RecruitmentController extends Controller
 		return response()->json($query->orderBy('created_at','desc')->paginate(20));
 	}
 
-	public function createJobPost(Request $request)
+	public function createJobPost(JobPostStoreRequest $request)
 	{
-		$post = JobPost::create($request->only(['title','description','requirements','status','created_by']));
+		$post = JobPost::create($request->validated() + ['status' => $request->get('status','draft')]);
 		return response()->json($post, 201);
 	}
 
@@ -43,10 +46,10 @@ class RecruitmentController extends Controller
 		return response()->json($post);
 	}
 
-	public function updateJobPost(Request $request, $id)
+	public function updateJobPost(JobPostUpdateRequest $request, $id)
 	{
 		$post = JobPost::findOrFail($id);
-		$post->fill($request->only(['title','description','requirements','status']));
+		$post->fill($request->validated());
 		$post->save();
 		return response()->json($post);
 	}
@@ -58,9 +61,9 @@ class RecruitmentController extends Controller
 		return response()->json(['deleted'=>true]);
 	}
 
-	public function submitApplication(Request $request)
+	public function submitApplication(ApplicationStoreRequest $request)
 	{
-		$app = Application::create($request->only(['job_id','applicant_user_id','status','interview_date','resume_url','other_docs_url']));
+		$app = Application::create($request->validated() + ['applicant_user_id' => optional($request->user())->id]);
 		return response()->json($app, 201);
 	}
 

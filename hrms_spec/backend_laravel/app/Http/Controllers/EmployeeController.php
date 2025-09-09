@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Employee;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use App\Http\Requests\EmployeeStoreRequest;
+use App\Http\Requests\EmployeeUpdateRequest;
 
 class EmployeeController extends Controller
 {
@@ -38,11 +40,10 @@ class EmployeeController extends Controller
 		return response()->json($query->paginate(20));
 	}
 
-	public function store(Request $request)
+	public function store(EmployeeStoreRequest $request)
 	{
 		$this->requireRole($request, ['Admin','HR']);
-		// TODO: validate and create user + employee
-		$employee = Employee::create($request->all());
+		$employee = Employee::create($request->validated());
 		return response()->json($employee, 201);
 	}
 
@@ -54,12 +55,11 @@ class EmployeeController extends Controller
 		return response()->json($employee);
 	}
 
-	public function update(Request $request, $id)
+	public function update(EmployeeUpdateRequest $request, $id)
 	{
 		$this->requireRole($request, ['Admin','HR']);
 		$employee = Employee::findOrFail($id);
-		// TODO: enforce name change limits and field-level permissions
-		$employee->fill($request->all());
+		$employee->fill($request->validated());
 		$employee->save();
 		return response()->json($employee);
 	}

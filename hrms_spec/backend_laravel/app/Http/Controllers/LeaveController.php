@@ -8,6 +8,7 @@ use App\Models\Employee;
 use App\Models\LeaveBalance;
 use Carbon\Carbon;
 use App\Models\Attendance;
+use App\Http\Requests\LeaveStoreRequest;
 
 class LeaveController extends Controller
 {
@@ -19,7 +20,7 @@ class LeaveController extends Controller
 		return response()->json($query->orderBy('created_at','desc')->paginate(20));
 	}
 
-	public function store(Request $request)
+	public function store(LeaveStoreRequest $request)
 	{
 		$employeeId = $request->get('employee_id') ?: optional($request->user())->employee->id;
 		$type = $request->get('type');
@@ -39,7 +40,7 @@ class LeaveController extends Controller
 			->whereIn('status', ['pending','approved'])
 			->count();
 		if ($activeCount >= 3) return response()->json(['error' => 'max_requests_reached'], 422);
-		$lr = LeaveRequest::create($request->all());
+		$lr = LeaveRequest::create($request->validated() + ['employee_id' => $employeeId]);
 		return response()->json($lr, 201);
 	}
 
