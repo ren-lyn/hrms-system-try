@@ -1,3 +1,6 @@
 from django.urls import path
+from .views import log_attendance
 
-urlpatterns = []
+urlpatterns = [
+    path('log', log_attendance),
+]

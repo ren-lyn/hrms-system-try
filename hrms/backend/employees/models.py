@@ -29,6 +29,23 @@ class EmployeeProfile(models.Model):
     date_hired = models.DateField()
     base_salary = models.DecimalField(max_digits=12, decimal_places=2)
     is_active = models.BooleanField(default=True)
+    nickname = models.CharField(max_length=64, blank=True)
+    birthdate = models.DateField(null=True, blank=True)
+    birthplace = models.CharField(max_length=200, blank=True)
+    contact_no = models.CharField(max_length=64, blank=True)
+    tenure_months = models.IntegerField(default=0)
+    sss_no = models.CharField(max_length=64, blank=True)
+    phic_no = models.CharField(max_length=64, blank=True)
+    pagibig_no = models.CharField(max_length=64, blank=True)
+    tin_no = models.CharField(max_length=64, blank=True)
+    civil_status = models.CharField(max_length=32, blank=True)
+    present_address = models.CharField(max_length=255, blank=True)
+    employment_status = models.CharField(max_length=32, choices=[
+        ('FULL_TIME','Full-time'),('PART_TIME','Part-time'),('PROBATIONARY','Probationary'),('CONTRACTUAL','Contractual'),('PROJECT_BASED','Project-based'),('INTERN','Intern/Trainee'),('RETIRED','Retired'),('RESIGNED','Resigned'),('ON_LEAVE','On leave')
+    ], default='FULL_TIME')
+    termination_date = models.DateField(null=True, blank=True)
+    termination_reason = models.TextField(blank=True)
+    remarks = models.TextField(blank=True)
 
     def __str__(self) -> str:
         return f"{self.employee_code} - {self.user.get_full_name()}"
