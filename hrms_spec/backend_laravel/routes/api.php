@@ -47,8 +47,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
 	// Performance
 	Route::post('/performance/reviews', [App\Http\Controllers\PerformanceController::class, 'store']);
+	Route::post('/performance/schedules', [App\Http\Controllers\PerformanceController::class, 'schedule']);
+	Route::post('/performance/reviews/{id}/approve', [App\Http\Controllers\PerformanceController::class, 'approve']);
 	Route::get('/performance/reviews', [App\Http\Controllers\PerformanceController::class, 'index']);
 	Route::get('/performance/summary', [App\Http\Controllers\PerformanceController::class, 'summary']);
+	Route::get('/me/performance', [App\Http\Controllers\PerformanceController::class, 'myEvaluations']);
+	Route::get('/performance/goals', [App\Http\Controllers\PerformanceController::class, 'goals']);
+	Route::post('/performance/goals', [App\Http\Controllers\PerformanceController::class, 'upsertGoal']);
 
 	// Recruitment & Job Posts
 	Route::get('/recruitment/job-posts', [App\Http\Controllers\RecruitmentController::class, 'listJobPosts']);

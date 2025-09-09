@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Evaluation;
 use App\Models\EvaluationItem;
+use App\Models\EvaluationSchedule;
+use App\Models\EvaluationGoal;
 use Carbon\Carbon;
 
 class PerformanceController extends Controller
@@ -24,6 +26,49 @@ class PerformanceController extends Controller
 			EvaluationItem::create([ 'evaluation_id' => $evaluation->id ] + $item);
 		}
 		return response()->json($evaluation->load('items'), 201);
+	}
+
+	public function schedule(Request $request)
+	{
+		// HR schedules quarterly evaluations
+		$scheduled = EvaluationSchedule::create($request->only(['employee_id','period_start','period_end','scheduled_at','status','created_by']));
+		return response()->json($scheduled, 201);
+	}
+
+	public function approve(Request $request, $id)
+	{
+		// HR approves submitted evaluation
+		$eval = Evaluation::findOrFail($id);
+		$eval->status = 'approved';
+		$eval->approved_by_employee_id = optional($request->user())->employee->id ?? null;
+		$eval->approved_at = now();
+		$eval->save();
+		return response()->json($eval);
+	}
+
+	public function myEvaluations(Request $request)
+	{
+		$user = $request->user();
+		$employeeId = optional($user->employee)->id;
+		$rows = Evaluation::with('items')->where('employee_id', $employeeId)->orderByDesc('period_end')->paginate(20);
+		return response()->json($rows);
+	}
+
+	public function goals(Request $request)
+	{
+		$user = $request->user();
+		$employeeId = $request->get('employee_id') ?: optional($user->employee)->id;
+		$q = EvaluationGoal::where('employee_id', $employeeId);
+		return response()->json($q->orderByDesc('id')->paginate(50));
+	}
+
+	public function upsertGoal(Request $request)
+	{
+		$goal = EvaluationGoal::updateOrCreate(
+			['id' => $request->get('id')],
+			$request->only(['employee_id','title','description','status','weight','score','due_date'])
+		);
+		return response()->json($goal);
 	}
 
 	public function summary(Request $request)

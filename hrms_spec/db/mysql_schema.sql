@@ -320,3 +320,46 @@ CREATE TABLE IF NOT EXISTS benefits_contributions (
   updated_at TIMESTAMP NULL,
   CONSTRAINT fk_ben_contrib_employee FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+-- Evaluation scheduling and approval
+
+ALTER TABLE evaluations
+	ADD COLUMN status ENUM('draft','submitted','approved') NOT NULL DEFAULT 'submitted',
+	ADD COLUMN approved_by_employee_id BIGINT UNSIGNED NULL,
+	ADD COLUMN approved_at TIMESTAMP NULL;
+
+CREATE TABLE IF NOT EXISTS evaluation_schedules (
+	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	employee_id BIGINT UNSIGNED NOT NULL,
+	period_start DATE NOT NULL,
+	period_end DATE NOT NULL,
+	scheduled_at DATETIME NOT NULL,
+	status ENUM('scheduled','completed','cancelled') NOT NULL DEFAULT 'scheduled',
+	created_by BIGINT UNSIGNED NULL,
+	created_at TIMESTAMP NULL,
+	updated_at TIMESTAMP NULL,
+	CONSTRAINT fk_eval_sched_employee FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS evaluation_goals (
+	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	employee_id BIGINT UNSIGNED NOT NULL,
+	title VARCHAR(150) NOT NULL,
+	description TEXT NULL,
+	status ENUM('open','in_progress','met','not_met') NOT NULL DEFAULT 'open',
+	weight TINYINT NULL,
+	score TINYINT NULL,
+	due_date DATE NULL,
+	created_at TIMESTAMP NULL,
+	updated_at TIMESTAMP NULL,
+	CONSTRAINT fk_eval_goals_employee FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS evaluation_criteria (
+	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	category VARCHAR(120) NOT NULL,
+	name VARCHAR(150) NOT NULL,
+	is_active TINYINT(1) NOT NULL DEFAULT 1,
+	created_at TIMESTAMP NULL,
+	updated_at TIMESTAMP NULL
+) ENGINE=InnoDB;
