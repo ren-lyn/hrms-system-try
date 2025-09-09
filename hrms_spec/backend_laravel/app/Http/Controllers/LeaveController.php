@@ -7,6 +7,7 @@ use App\Models\LeaveRequest;
 use App\Models\Employee;
 use App\Models\LeaveBalance;
 use Carbon\Carbon;
+use App\Models\Attendance;
 
 class LeaveController extends Controller
 {
@@ -20,7 +21,7 @@ class LeaveController extends Controller
 
 	public function store(Request $request)
 	{
-		$employeeId = $request->get('employee_id');
+		$employeeId = $request->get('employee_id') ?: optional($request->user())->employee->id;
 		$type = $request->get('type');
 		$start = Carbon::parse($request->get('start_date'));
 		$end = Carbon::parse($request->get('end_date'));
@@ -29,6 +30,15 @@ class LeaveController extends Controller
 		$balance = LeaveBalance::firstOrCreate(['employee_id'=>$employeeId,'year'=>$year]);
 		$available = $type === 'vacation' ? $balance->vacation_days : $balance->sick_days;
 		if ($available < $days) return response()->json(['error' => 'insufficient balance'], 422);
+
+		// limit: max 3 active requests per month
+		$monthStart = $start->copy()->startOfMonth();
+		$monthEnd = $start->copy()->endOfMonth();
+		$activeCount = LeaveRequest::where('employee_id',$employeeId)
+			->whereBetween('start_date', [$monthStart, $monthEnd])
+			->whereIn('status', ['pending','approved'])
+			->count();
+		if ($activeCount >= 3) return response()->json(['error' => 'max_requests_reached'], 422);
 		$lr = LeaveRequest::create($request->all());
 		return response()->json($lr, 201);
 	}
@@ -38,7 +48,21 @@ class LeaveController extends Controller
 		$lr = LeaveRequest::findOrFail($id);
 		$lr->status = 'approved';
 		$lr->save();
-		// TODO: deduct balance and mark attendance as leave
+		// Deduct balance and mark attendance as leave
+		$year = (int)Carbon::parse($lr->start_date)->format('Y');
+		$balance = LeaveBalance::firstOrCreate(['employee_id'=>$lr->employee_id,'year'=>$year]);
+		$days = Carbon::parse($lr->start_date)->diffInWeekdays(Carbon::parse($lr->end_date)) + 1;
+		if ($lr->type === 'vacation') $balance->vacation_days = max(0, $balance->vacation_days - $days);
+		else $balance->sick_days = max(0, $balance->sick_days - $days);
+		$balance->save();
+		// Mark attendance records as leave
+		$period = new \DatePeriod(new \DateTime($lr->start_date), new \DateInterval('P1D'), (new \DateTime($lr->end_date))->modify('+1 day'));
+		foreach ($period as $d) {
+			Attendance::updateOrCreate([
+				'employee_id' => $lr->employee_id,
+				'date' => $d->format('Y-m-d'),
+			], [ 'status' => 'leave' ]);
+		}
 		return response()->json($lr);
 	}
 

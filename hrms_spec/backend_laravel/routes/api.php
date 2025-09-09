@@ -24,6 +24,11 @@ Route::middleware('auth:sanctum')->group(function () {
 	// Attendance
 	Route::post('/attendance/logs', [App\Http\Controllers\AttendanceController::class, 'ingest']);
 	Route::get('/attendance/workdays', [App\Http\Controllers\AttendanceController::class, 'workdays']);
+	Route::get('/me/attendance', [App\Http\Controllers\AttendanceController::class, 'meList']);
+	Route::post('/me/attendance/clock', [App\Http\Controllers\AttendanceController::class, 'clock']);
+	Route::get('/attendance', [App\Http\Controllers\AttendanceController::class, 'listAll']);
+	Route::patch('/attendance/{id}', [App\Http\Controllers\AttendanceController::class, 'updateEntry']);
+	Route::get('/attendance/report', [App\Http\Controllers\AttendanceController::class, 'report']);
 
 	// Leave
 	Route::get('/leaves/requests', [App\Http\Controllers\LeaveController::class, 'index']);
