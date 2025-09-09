@@ -1,0 +1,106 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+// Auth
+Route::post('/auth/login', [App\Http\Controllers\AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->group(function () {
+	Route::get('/auth/me', [App\Http\Controllers\AuthController::class, 'me']);
+
+	// Employees (HR/Admin)
+	Route::get('/employees', [App\Http\Controllers\EmployeeController::class, 'index']);
+	Route::post('/employees', [App\Http\Controllers\EmployeeController::class, 'store']);
+	Route::get('/employees/{id}', [App\Http\Controllers\EmployeeController::class, 'show']);
+	Route::patch('/employees/{id}', [App\Http\Controllers\EmployeeController::class, 'update']);
+	Route::delete('/employees/{id}', [App\Http\Controllers\EmployeeController::class, 'destroy']);
+	Route::get('/employees/report', [App\Http\Controllers\EmployeeController::class, 'report']);
+
+	// Employee self-service
+	Route::get('/me/employee', [App\Http\Controllers\EmployeeController::class, 'me']);
+	Route::patch('/me/employee', [App\Http\Controllers\EmployeeController::class, 'updateMe']);
+	Route::get('/me/payslips', [App\Http\Controllers\PayrollController::class, 'myPayslips']);
+	Route::get('/me/benefits', [App\Http\Controllers\BenefitController::class, 'myBenefits']);
+
+	// Attendance
+	Route::post('/attendance/logs', [App\Http\Controllers\AttendanceController::class, 'ingest']);
+	Route::get('/attendance/workdays', [App\Http\Controllers\AttendanceController::class, 'workdays']);
+	Route::get('/me/attendance', [App\Http\Controllers\AttendanceController::class, 'meList']);
+	Route::post('/me/attendance/clock', [App\Http\Controllers\AttendanceController::class, 'clock']);
+	Route::get('/attendance', [App\Http\Controllers\AttendanceController::class, 'listAll']);
+	Route::patch('/attendance/{id}', [App\Http\Controllers\AttendanceController::class, 'updateEntry']);
+	Route::get('/attendance/report', [App\Http\Controllers\AttendanceController::class, 'report']);
+
+	// Leave
+	Route::get('/leaves/requests', [App\Http\Controllers\LeaveController::class, 'index']);
+	Route::post('/leaves/requests', [App\Http\Controllers\LeaveController::class, 'store']);
+	Route::patch('/leaves/requests/{id}/approve', [App\Http\Controllers\LeaveController::class, 'approve']);
+	Route::patch('/leaves/requests/{id}/reject', [App\Http\Controllers\LeaveController::class, 'reject']);
+
+	// Payroll
+	Route::post('/payroll/runs', [App\Http\Controllers\PayrollController::class, 'createRun']);
+	Route::post('/payroll/runs/{id}/process', [App\Http\Controllers\PayrollController::class, 'processRun']);
+	Route::post('/payroll/runs/{id}/finalize', [App\Http\Controllers\PayrollController::class, 'finalize']);
+	Route::post('/payroll/runs/{id}/paid', [App\Http\Controllers\PayrollController::class, 'markPaid']);
+	Route::get('/payroll/summary', [App\Http\Controllers\PayrollController::class, 'summary']);
+	Route::get('/payroll/runs/{id}/items', [App\Http\Controllers\PayrollController::class, 'items']);
+	Route::patch('/employees/{employeeId}/salary', [App\Http\Controllers\PayrollController::class, 'updateSalary']);
+
+	// Performance
+	Route::post('/performance/reviews', [App\Http\Controllers\PerformanceController::class, 'store']);
+	Route::post('/performance/schedules', [App\Http\Controllers\PerformanceController::class, 'schedule']);
+	Route::post('/performance/reviews/{id}/approve', [App\Http\Controllers\PerformanceController::class, 'approve']);
+	Route::get('/performance/reviews', [App\Http\Controllers\PerformanceController::class, 'index']);
+	Route::get('/performance/summary', [App\Http\Controllers\PerformanceController::class, 'summary']);
+	Route::get('/performance/criteria', [App\Http\Controllers\PerformanceController::class, 'criteria']);
+	Route::get('/performance/reviews/{id}/export', [App\Http\Controllers\PerformanceController::class, 'export']);
+	Route::get('/me/performance', [App\Http\Controllers\PerformanceController::class, 'myEvaluations']);
+	Route::get('/performance/goals', [App\Http\Controllers\PerformanceController::class, 'goals']);
+	Route::post('/performance/goals', [App\Http\Controllers\PerformanceController::class, 'upsertGoal']);
+
+	// Recruitment & Job Posts
+	Route::get('/recruitment/job-posts', [App\Http\Controllers\RecruitmentController::class, 'listJobPosts']);
+	Route::post('/recruitment/job-posts', [App\Http\Controllers\RecruitmentController::class, 'createJobPost']);
+	Route::patch('/recruitment/job-posts/{id}', [App\Http\Controllers\RecruitmentController::class, 'updateJobPost']);
+	Route::delete('/recruitment/job-posts/{id}', [App\Http\Controllers\RecruitmentController::class, 'deleteJobPost']);
+	Route::patch('/recruitment/job-posts/{id}/publish', [App\Http\Controllers\RecruitmentController::class, 'publishJobPost']);
+	Route::patch('/recruitment/job-posts/{id}/close', [App\Http\Controllers\RecruitmentController::class, 'closeJobPost']);
+
+	// Applications
+	Route::get('/recruitment/applications', [App\Http\Controllers\RecruitmentController::class, 'listApplications']);
+	Route::post('/recruitment/applications', [App\Http\Controllers\RecruitmentController::class, 'submitApplication']);
+	Route::patch('/recruitment/applications/{id}/status', [App\Http\Controllers\RecruitmentController::class, 'updateApplicationStatus']);
+	Route::get('/me/applications', [App\Http\Controllers\RecruitmentController::class, 'myApplications']);
+	Route::post('/recruitment/applications/{id}/documents', [App\Http\Controllers\RecruitmentController::class, 'uploadDocument']);
+	Route::post('/recruitment/applications/{id}/hire', [App\Http\Controllers\RecruitmentController::class, 'hire']);
+	Route::post('/recruitment/applications/{id}/offer-response', [App\Http\Controllers\RecruitmentController::class, 'offerResponse']);
+	Route::get('/recruitment/report', [App\Http\Controllers\RecruitmentController::class, 'report']);
+
+	// Onboarding
+	Route::post('/onboarding/assignments', [App\Http\Controllers\OnboardingController::class, 'assign']);
+	Route::patch('/onboarding/assignments/{id}', [App\Http\Controllers\OnboardingController::class, 'update']);
+	Route::get('/me/onboarding', [App\Http\Controllers\OnboardingController::class, 'myTasks']);
+	Route::post('/onboarding/sessions', [App\Http\Controllers\OnboardingController::class, 'scheduleSession']);
+	Route::get('/onboarding/checklist-report', [App\Http\Controllers\OnboardingController::class, 'checklistReport']);
+
+	// Benefits
+	Route::post('/benefits/enrollments', [App\Http\Controllers\BenefitController::class, 'enroll']);
+	Route::get('/benefits/claims', [App\Http\Controllers\BenefitController::class, 'indexClaims']);
+	Route::post('/benefits/claims', [App\Http\Controllers\BenefitController::class, 'storeClaim']);
+	Route::patch('/benefits/claims/{id}/approve', [App\Http\Controllers\BenefitController::class, 'approveClaim']);
+	Route::patch('/benefits/claims/{id}/reject', [App\Http\Controllers\BenefitController::class, 'rejectClaim']);
+	Route::delete('/benefits/enrollments/{id}', [App\Http\Controllers\BenefitController::class, 'terminateEnrollment']);
+	Route::get('/benefits/report', [App\Http\Controllers\BenefitController::class, 'report']);
+
+	// Disciplinary
+	Route::get('/disciplinary/actions', [App\Http\Controllers\DisciplinaryController::class, 'index']);
+	Route::post('/disciplinary/actions', [App\Http\Controllers\DisciplinaryController::class, 'store']);
+
+	// Reports
+	Route::post('/reports/export', [App\Http\Controllers\ReportController::class, 'export']);
+	Route::get('/reports/csv', [App\Http\Controllers\ReportController::class, 'csv']);
+
+	// Analytics
+	Route::get('/analytics/turnover-risk', [App\Http\Controllers\AnalyticsController::class, 'turnoverRisk']);
+	Route::get('/analytics/turnover-risk/list', [App\Http\Controllers\AnalyticsController::class, 'riskList']);
+	Route::post('/analytics/turnover-risk/train', [App\Http\Controllers\AnalyticsController::class, 'train']);
+});

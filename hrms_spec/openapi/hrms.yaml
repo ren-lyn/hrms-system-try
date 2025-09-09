@@ -1,0 +1,158 @@
+openapi: 3.0.3
+info:
+  title: CCDC HRMS API
+  version: 1.0.0
+servers:
+  - url: /api
+paths:
+  /auth/login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          description: OK
+  /employees:
+    get:
+      summary: List employees
+      responses: { '200': { description: OK } }
+    post:
+      summary: Create employee
+      responses: { '201': { description: Created } }
+  /employees/{id}:
+    get:
+      summary: Get employee
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses: { '200': { description: OK } }
+    patch:
+      summary: Update employee
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses: { '200': { description: OK } }
+  /attendance/logs:
+    post:
+      summary: Ingest attendance log (biometric/manual)
+      responses: { '202': { description: Accepted } }
+  /attendance/workdays:
+    get:
+      summary: Attendance summary for charts
+      responses: { '200': { description: OK } }
+  /leaves/requests:
+    get:
+      summary: List leave requests
+      responses: { '200': { description: OK } }
+    post:
+      summary: Submit leave request
+      responses: { '201': { description: Created } }
+  /leaves/requests/{id}/approve:
+    patch:
+      summary: Approve leave request
+      responses: { '200': { description: OK } }
+  /payroll/runs:
+    post:
+      summary: Create payroll run
+      responses: { '201': { description: Created } }
+  /payroll/runs/{id}/process:
+    post:
+      summary: Process payroll run
+      responses: { '202': { description: Accepted } }
+  /payroll/summary:
+    get:
+      summary: Payroll summary series for charts
+      responses: { '200': { description: OK } }
+  /performance/reviews:
+    post:
+      summary: Create performance review
+      responses: { '201': { description: Created } }
+  /performance/summary:
+    get:
+      summary: Performance distribution summary for charts
+      responses: { '200': { description: OK } }
+  /recruitment/job-posts:
+    get:
+      summary: List job posts (public, open only)
+      responses: { '200': { description: OK } }
+    post:
+      summary: Create job post (HR)
+      responses: { '201': { description: Created } }
+  /recruitment/job-posts/{id}/publish:
+    patch:
+      summary: Publish job post (status=open)
+      responses: { '200': { description: OK } }
+  /recruitment/job-posts/{id}/close:
+    patch:
+      summary: Close job post (status=closed)
+      responses: { '200': { description: OK } }
+  /recruitment/applications:
+    post:
+      summary: Submit application (applicant)
+      responses: { '201': { description: Created } }
+    get:
+      summary: List applications (HR)
+      responses: { '200': { description: OK } }
+  /recruitment/applications/{id}/status:
+    patch:
+      summary: Update app status (shortlist/interview/offer/hired/rejected)
+      responses: { '200': { description: OK } }
+  /onboarding/assignments:
+    post:
+      summary: Create onboarding task assignment
+      responses: { '201': { description: Created } }
+    patch:
+      summary: Update onboarding assignment status (approve/reject/complete)
+      responses: { '200': { description: OK } }
+  /benefits/enrollments:
+    post:
+      summary: Enroll benefit (HR)
+      responses: { '201': { description: Created } }
+  /benefits/claims:
+    post:
+      summary: Submit benefit claim
+      responses: { '201': { description: Created } }
+    get:
+      summary: List benefit claims (HR)
+      responses: { '200': { description: OK } }
+  /benefits/claims/{id}/approve:
+    patch:
+      summary: Approve claim
+      responses: { '200': { description: OK } }
+  /benefits/claims/{id}/reject:
+    patch:
+      summary: Reject claim
+      responses: { '200': { description: OK } }
+  /disciplinary/actions:
+    post:
+      summary: Issue disciplinary action
+      responses: { '201': { description: Created } }
+    get:
+      summary: List disciplinary actions
+      responses: { '200': { description: OK } }
+  /reports/export:
+    post:
+      summary: Generate export (payroll/attendance/leave)
+      responses: { '202': { description: Accepted } }
+  /analytics/turnover-risk:
+    get:
+      summary: Turnover risk chart data
+      responses: { '200': { description: OK } }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
